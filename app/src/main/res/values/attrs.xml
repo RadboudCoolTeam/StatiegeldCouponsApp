@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CouponCard">
+        <attr name="date" format="string"/>
+        <attr name="money" format="string"/>
+        <attr name="supermarketChain" format="enum">
+            <enum name="AH" value="0"/>
+            <enum name="COOP" value="1"/>
+            <enum name="ALDI" value="2"/>
+            <enum name="LIDL" value="3"/>
+            <enum name="JUMBO" value="4"/>
+        </attr>
+    </declare-styleable>
+</resources>
