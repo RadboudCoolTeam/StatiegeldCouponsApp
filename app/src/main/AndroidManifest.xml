@@ -3,13 +3,10 @@
     package="io.github.textrecognisionsample">
 
     <uses-feature android:name="android.hardware.camera.any" />
-    <uses-feature android:name="android.hardware.camera.any" />
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -18,27 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TextRecognisionSample">
-        <activity
-            android:name=".ShowCoupon"
-            android:exported="false" />
-        <activity
-            android:name=".AccountSettings"
-            android:exported="false" />
-        <activity
-            android:name=".AccountCreate"
-            android:exported="false" />
-        <activity
-            android:name=".Account"
-            android:exported="false" />
-        <activity
-            android:name=".EditCoupon"
-            android:exported="false" />
-        <activity
-            android:name=".VerifyCoupon"
-            android:exported="false" />
-        <activity
-            android:name=".Home"
-            android:exported="false" />
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
         <activity
             android:name=".CameraX"
             android:exported="false" />

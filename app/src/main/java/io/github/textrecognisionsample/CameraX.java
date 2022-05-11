@@ -1,55 +1,46 @@
 package io.github.textrecognisionsample;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
-import androidx.camera.core.VideoCapture;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.video.Recorder;
-import androidx.camera.video.Recording;
-import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.viewbinding.ViewBinding;
-
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.gson.Gson;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
-import io.github.textrecognisionsample.databinding.ActivityCameraXBinding;
+public class CameraX extends AppCompatActivity implements View.OnClickListener {
+    private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
+    private ImageCapture imageCapture;
+    Button bTakePicture;
+    PreviewView previewView;
 
-public class CameraX extends AppCompatActivity {
+    public static final int TAKE_PICTURE_CODE = 1;
 
-    private ImageCapture imageCapture = null;
+    private final ExecutorService cameraExecutor = null;
 
-    private VideoCapture videoCapture = null;
-    private Recording recording = null;
+    int REQUEST_CODE_PERMISSIONS = 10;
 
-    private ExecutorService cameraExecutor = null;
-
-    private final int REQUEST_CODE_PERMISSIONS = 10;
     private final String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO
@@ -57,26 +48,30 @@ public class CameraX extends AppCompatActivity {
 
     private final String FILENAME_FORMAT = "JPEG";
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_x);
 
-        if (allPermissionsGranted()) {
-            startCamera();
+        bTakePicture = findViewById(R.id.image_capture_button);
+        previewView = findViewById(R.id.viewFinder);
+
+        bTakePicture.setOnClickListener(this);
+
+        if (!allPermissionsGranted()) {
+            ActivityCompat.requestPermissions(CameraX.this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         } else {
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
-                    REQUEST_CODE_PERMISSIONS);
+            cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+            cameraProviderFuture.addListener(() -> {
+                try {
+                    ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                    startCameraX(cameraProvider);
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }, getExecutor());
         }
-
-        Button imageCapture = findViewById(R.id.image_capture_button);
-
-        imageCapture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePhoto();
-            }
-        });
     }
 
     @Override
@@ -84,7 +79,15 @@ public class CameraX extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCamera();
+                cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+                cameraProviderFuture.addListener(() -> {
+                    try {
+                        ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                        startCameraX(cameraProvider);
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }, getExecutor());
             } else {
                 Toast.makeText(this, "Permission is not granted by user.",
                         Toast.LENGTH_SHORT).show();
@@ -93,55 +96,78 @@ public class CameraX extends AppCompatActivity {
         }
     }
 
-    private void takePhoto() {
-        System.out.println("lol");
-
-        imageCapture.takePicture(ContextCompat.getMainExecutor(this),
-                new ImageCapture.OnImageCapturedCallback() {
-            @Override
-            public void onCaptureSuccess(@NonNull ImageProxy image) {
-                super.onCaptureSuccess(image);
-                Toast.makeText(CameraX.this, "LOL", Toast.LENGTH_SHORT).show();
-                Intent data = new Intent();
-                Gson gson = new Gson();
-                data.putExtra("data",  gson.toJson(image));
-                image.close();
-                setResult(RESULT_OK, data);
-                finish();
-            }
-
-
-        });
+    private Executor getExecutor() {
+        return ContextCompat.getMainExecutor(this);
     }
 
+    private void startCameraX(ProcessCameraProvider cameraProvider) {
+        cameraProvider.unbindAll();
 
-    private void startCamera() {
-        ListenableFuture<ProcessCameraProvider> providerFuture = ProcessCameraProvider.getInstance(this);
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .build();
 
-        PreviewView viewFinder = findViewById(R.id.viewFinder);
+        Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-        providerFuture.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ProcessCameraProvider cameraProvider = providerFuture.get();
+        imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build();
+        cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageCapture);
 
-                    Preview preview = new Preview.Builder().build();
-                    preview.setSurfaceProvider(viewFinder.getSurfaceProvider());
+    }
 
-                    imageCapture = new ImageCapture.Builder().build();
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.image_capture_button) {
+            System.out.println("Test");
+            capturePhoto();
+        }
+    }
 
-                    CameraSelector selector = CameraSelector.DEFAULT_BACK_CAMERA;
+    private void capturePhoto() {
 
-                    cameraProvider.unbindAll();
+        long timestamp = System.currentTimeMillis();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timestamp);
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
 
-                    cameraProvider.bindToLifecycle(CameraX.this, selector, preview);
+        /*imageCapture.takePicture(
+                new ImageCapture.OutputFileOptions.Builder(
+                        getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues
+                ).build(),
+                getExecutor(),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        Toast.makeText(CameraX.this, "Photo", Toast.LENGTH_SHORT).show();
 
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+
+                        Toast.makeText(CameraX.this, "Error" + exception.getMessage(), Toast.LENGTH_SHORT).show();
+
+
+                    }
                 }
-            }
-        }, ContextCompat.getMainExecutor(this));
+        );*/
+
+        imageCapture.takePicture(getExecutor(),
+                new ImageCapture.OnImageCapturedCallback() {
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        super.onCaptureSuccess(image);
+                        Toast.makeText(CameraX.this, "Captured", Toast.LENGTH_SHORT).show();
+                        Analyzer newAnalyzer = new Analyzer(CameraX.this);
+                        newAnalyzer.analyze(image);
+                    }
+                });
+
+
     }
 
     private boolean allPermissionsGranted() {

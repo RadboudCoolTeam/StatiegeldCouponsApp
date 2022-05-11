@@ -11,6 +11,7 @@ import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,9 +35,9 @@ public class MainActivity extends AppCompatActivity {
         Button select = findViewById(R.id.button);
         select.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent takePicture = new Intent(MainActivity.this, CameraX.class);
-                startActivityForResult(takePicture, TAKE_PICTURE_CODE);
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CameraX.class);
+                startActivityForResult(intent, CameraX.TAKE_PICTURE_CODE);
             }
         });
     }
@@ -46,13 +47,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == TAKE_PICTURE_CODE) {
-                Bundle extras = data.getExtras();
-                Gson gson = new Gson();
-                ImageProxy imageProxy = gson.fromJson(extras.get("data").toString(),
-                        ImageProxy.class);
-                ImageView imageView = findViewById(R.id.imageView);
-                imageView.setImageBitmap(toBitmap(Objects.requireNonNull(imageProxy.getImage())));
+            if (requestCode == CameraX.TAKE_PICTURE_CODE) {
+                String text = data.getStringExtra("text");
+                EditText edit = findViewById(R.id.editTextTextMultiLine);
+                edit.setText(text);
             }
         }
     }
