@@ -40,6 +40,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, CameraX.TAKE_PICTURE_CODE);
             }
         });
+
+        Button home = findViewById(R.id.home_button);
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, Home.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @SuppressLint("UnsafeOptInUsageError")

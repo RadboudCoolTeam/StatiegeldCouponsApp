@@ -1,20 +1,11 @@
 package io.github.textrecognisionsample;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.net.Uri;
-import android.util.AttributeSet;
+import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CouponCard extends LinearLayout {
-
-    int INDEX_0 = 0;
-    int INDEX_1 = 1;
-    int INDEX_2 = 2;
+public class CouponCard extends GridLayout {
 
     private TextView dateText;
     private TextView moneyText;
@@ -22,24 +13,18 @@ public class CouponCard extends LinearLayout {
     private SupermarketChain supermarketChain;
     private ImageView supermarketChainImage;
 
-
-    public CouponCard(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs);
+    public CouponCard(Context context, Coupon coupon) {
+        super(context);
+        init(context, coupon);
     }
 
-    private void init(Context context, AttributeSet attrs) {
-        inflate(context, R.layout.coupon_card, this);
-        int[] sets = {
-                R.attr.date,
-                R.attr.money,
-                R.attr.supermarketChain
-        };
-        TypedArray a = context.obtainStyledAttributes(attrs, sets);
-        String date = a.getString(INDEX_0);
-        String money = a.getString(INDEX_1);
-        SupermarketChain chain = SupermarketChain.values()[a.getInt(R.styleable.CouponCard_supermarketChain, 0)];
-        a.recycle();
+    private void init(Context context, Coupon coupon) {
+        String date = coupon.getDate();
+        String money = coupon.getMoney();
+        SupermarketChain chain = coupon.getSupermarketChain();
+
+        setColumnCount(2);
+        setRowCount(2);
 
         setSupermarketChain(chain);
         initComponents(context);
@@ -49,15 +34,16 @@ public class CouponCard extends LinearLayout {
     }
 
     private void initComponents(Context context) {
-        dateText = findViewById(R.id.date_Text);
-        moneyText = findViewById(R.id.money_Text);
-        supermarketChainImage = findViewById(R.id.supermarket_chain_Image);
+        dateText = new TextView(context);
+        moneyText = new TextView(context);
+        supermarketChainImage = new ImageView(context);
 
-        Resources resources = context.getResources();
+        addView(dateText, 0);
+        addView(moneyText, 1);
+        addView(supermarketChainImage, 2);
+
         int resId = supermarketChain.getDrawable();
-        supermarketChainImage.setImageURI(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(resId) + '/' + resources.getResourceTypeName(resId)
-                + '/' + resources.getResourceEntryName(resId)));
+        supermarketChainImage.setImageDrawable(context.getResources().getDrawable(resId));
     }
 
     public CharSequence getDateText() {
