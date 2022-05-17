@@ -23,6 +23,15 @@
         android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical" />
+        android:orientation="vertical">
+        <GridView
+            android:id="@+id/cards_grid"
+            android:numColumns="auto_fit"
+            android:gravity="center"
+            android:columnWidth="100dp"
+            android:stretchMode="columnWidth"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </ScrollView>
 
 </LinearLayout>

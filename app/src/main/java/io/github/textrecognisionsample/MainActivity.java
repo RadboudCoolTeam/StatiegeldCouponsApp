@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == CameraX.TAKE_PICTURE_CODE) {
-                String text = data.getStringExtra("text");
+                String text = data.getStringExtra("barcode");
                 EditText edit = findViewById(R.id.editTextTextMultiLine);
                 edit.setText(text);
             }

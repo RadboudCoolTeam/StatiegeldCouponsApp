@@ -13,12 +13,17 @@ import androidx.camera.core.ImageProxy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
+import java.util.List;
 
 public class Analyzer implements ImageAnalysis.Analyzer {
 
@@ -34,22 +39,42 @@ public class Analyzer implements ImageAnalysis.Analyzer {
         if (mediaImage != null) {
             InputImage inputImage = InputImage.fromMediaImage(mediaImage, image.getImageInfo().getRotationDegrees());
             TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+            BarcodeScanner scanner = BarcodeScanning.getClient();
+
             recognizer.process(inputImage)
                     .addOnSuccessListener(new OnSuccessListener<Text>() {
                         @Override
                         public void onSuccess(Text visionText) {
                             Intent intent = new Intent();
                             intent.putExtra("text", visionText.getText());
-                            cameraX.setResult(Activity.RESULT_OK, intent);
-                            cameraX.finish();
+
+                            Task<List<Barcode>> result1 = scanner.process(inputImage)
+                                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+                                        @Override
+                                        public void onSuccess(List<Barcode> barcodes) {
+                                            if (barcodes.size() > 0) {
+                                                intent.putExtra("barcode", barcodes.get(0).getRawValue());
+                                            } else {
+                                                intent.putExtra("barcode", "No data");
+                                            }
+                                            cameraX.setResult(Activity.RESULT_OK, intent);
+                                            cameraX.finish();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            cameraX.setResult(Activity.RESULT_OK, intent);
+                                            cameraX.finish();
+                                        }
+                                    });
                         }
                     })
                     .addOnFailureListener(
                             new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    // Task failed with an exception
-                                    // ...
+                                    cameraX.finish();
                                 }
                             });
         }
