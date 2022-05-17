@@ -1,28 +1,33 @@
 package io.github.textrecognisionsample;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.GridLayout;
+import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Home extends AppCompatActivity {
 
-    private ArrayList<Coupon> coupons = new ArrayList<>();
+    private static ArrayList<Coupon> coupons = new ArrayList<>();
 
     private int counter;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,33 +35,34 @@ public class Home extends AppCompatActivity {
 
         Button add = findViewById(R.id.add_button);
         Button back = findViewById(R.id.back_button);
-        ScrollView scrollView = findViewById(R.id.list);
+        EditText addDate = findViewById(R.id.add_date);
+        EditText addMoney = findViewById(R.id.add_money);
+        Spinner spinner = findViewById(R.id.add_chain);
+        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
+                Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList())));
 
-        Coupon coupon = new Coupon("A", "B", SupermarketChain.AH);
-        coupons.add(coupon);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setNestedScrollingEnabled(false);
 
-        CustomGrid customGrid = new CustomGrid(Home.this, coupons);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        GridRecyclerViewAdapter adapter = new GridRecyclerViewAdapter(this, coupons);
 
-        GridView grid = findViewById(R.id.cards_grid);
-        grid.setAdapter(customGrid);
-        grid.setOnItemClickListener((adapterView, view, i, l) -> {
-            Toast.makeText(Home.this, "You clicked at: " +
-                    coupons.get(i).getSupermarketChain().name(), Toast.LENGTH_SHORT).show();
-        });
-
-        add.setOnClickListener(new View.OnClickListener() {
+        adapter.setClickListener(new GridRecyclerViewAdapter.ItemClickListener() {
             @Override
-            public void onClick(View view) {
-                Coupon coupon = new Coupon("A", "B", SupermarketChain.AH);
-                coupons.add(coupon);
+            public void onItemClick(View view, int position) {
+
             }
         });
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
+        recyclerView.setAdapter(adapter);
+
+        add.setOnClickListener(view -> {
+            Coupon coupon = new Coupon(addDate.getText().toString(), addMoney.getText().toString(),
+                    SupermarketChain.valueOf(spinner.getSelectedItem().toString()));
+            coupons.add(coupon);
+            adapter.notifyItemInserted(coupons.size() - 1);
         });
+
+        back.setOnClickListener(view -> finish());
     }
 }

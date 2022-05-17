@@ -7,6 +7,21 @@
     android:orientation="vertical"
     tools:context=".Home">
 
+    <EditText
+        android:id="@+id/add_date"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/add_money"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <Spinner
+        android:id="@+id/add_chain"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/add_button"
         android:layout_width="fill_parent"
@@ -19,19 +34,12 @@
         android:layout_height="wrap_content"
         android:text="Back" />
 
-    <ScrollView
-        android:id="@+id/list"
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
-        <GridView
-            android:id="@+id/cards_grid"
-            android:numColumns="auto_fit"
-            android:gravity="center"
-            android:columnWidth="100dp"
-            android:stretchMode="columnWidth"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    </ScrollView>
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+
 
 </LinearLayout>
