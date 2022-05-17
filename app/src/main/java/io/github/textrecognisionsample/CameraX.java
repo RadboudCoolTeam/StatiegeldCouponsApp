@@ -132,30 +132,6 @@ public class CameraX extends AppCompatActivity implements View.OnClickListener {
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timestamp);
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
 
-        /*imageCapture.takePicture(
-                new ImageCapture.OutputFileOptions.Builder(
-                        getContentResolver(),
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues
-                ).build(),
-                getExecutor(),
-                new ImageCapture.OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Toast.makeText(CameraX.this, "Photo", Toast.LENGTH_SHORT).show();
-
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-
-                        Toast.makeText(CameraX.this, "Error" + exception.getMessage(), Toast.LENGTH_SHORT).show();
-
-
-                    }
-                }
-        );*/
-
         imageCapture.takePicture(getExecutor(),
                 new ImageCapture.OnImageCapturedCallback() {
                     @Override
