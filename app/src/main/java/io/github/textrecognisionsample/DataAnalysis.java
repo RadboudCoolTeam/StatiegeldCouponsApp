@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -15,28 +16,24 @@ public class DataAnalysis {
 
     String[] albert = {"albert", "heijn"};
 
-    public void pre_analysis(Intent data){
-
-        data.getStringExtra("text").toLowerCase();
-
-        pre_ana = data.getStringExtra("text").split(" ");
+    public void pre_analysis(Intent data) {
+        pre_ana = data.getStringExtra("text").toLowerCase().split(" ");
         analysis.addAll(Arrays.asList(pre_ana));
     }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public String filterData(Intent data){
+    public String filterData(Intent data) {
 
         pre_analysis(data);
 
-        for(int i = 0; i < albert.length; i++) {
+        for (int i = 0; i < albert.length; i++) {
 
-            for(int k = 0; k < analysis.size(); k++){
+            for (int k = 0; k < analysis.size(); k++) {
 
                 int result_albert = LevenshteinDistance(albert[i], analysis.get(k));
             }
 
         }
-
-
 
 
         return "";
@@ -51,11 +48,9 @@ public class DataAnalysis {
             for (int j = 0; j <= b.length(); j++) {
                 if (i == 0) {
                     result[i][j] = j;
-                }
-                else if (j == 0) {
+                } else if (j == 0) {
                     result[i][j] = i;
-                }
-                else {
+                } else {
                     result[i][j] = min(result[i - 1][j - 1]
                                     + cost(a.charAt(i - 1), b.charAt(j - 1)),
                             result[i - 1][j] + 1,
@@ -66,9 +61,11 @@ public class DataAnalysis {
 
         return result[a.length()][b.length()];
     }
+
     public static int cost(char a, char b) {
         return a == b ? 0 : 1;
     }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static int min(int... numbers) {
         return Arrays.stream(numbers)

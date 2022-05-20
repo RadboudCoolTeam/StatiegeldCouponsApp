@@ -3,10 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable-v24/arrow_back-48px.xml" value="0.211" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/back.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_ah.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_aldi.xml" value="0.1" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_baseline_navigate_before_24.xml" value="0.211" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_coop.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_jumbo.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_lidl.xml" value="0.1" />
@@ -16,7 +18,7 @@
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_camerax.xml" value="0.22" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_home.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_main.xml" value="0.2672239108409321" />
-        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_show_coupon.xml" value="0.2055996656916005" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_show_coupon.xml" value="0.4466666666666667" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_verify_coupon.xml" value="0.19281744335185977" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/camera.xml" value="0.15096251266464034" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/coupon_card.xml" value="0.6" />
