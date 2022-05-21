@@ -1,5 +1,6 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.activity;
 
+import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -18,24 +19,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.EAN13Writer;
-import com.google.zxing.oned.UPCEANReader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.model.Coupon;
+import io.github.textrecognisionsample.model.CouponDao;
+import io.github.textrecognisionsample.model.CouponDatabase;
+import io.github.textrecognisionsample.model.SupermarketChain;
+
 public class Home extends AppCompatActivity {
 
     private ArrayList<Coupon> coupons = new ArrayList<>();
     private CouponDatabase db;
+    private GridRecyclerViewAdapter adapter;
+
+    public static int VIEW_COUPON = 1;
 
     int counter;
 
@@ -67,12 +75,11 @@ public class Home extends AppCompatActivity {
         //recyclerView.setNestedScrollingEnabled(false);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        GridRecyclerViewAdapter adapter = new GridRecyclerViewAdapter(this, coupons);
+        adapter = new GridRecyclerViewAdapter(this, coupons);
 
         adapter.setClickListener(new GridRecyclerViewAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                System.out.println(1);
                 Toast.makeText(Home.this, "Item: " + coupons.get(position).getSupermarketChain().name(), Toast.LENGTH_SHORT).show();
 
                 GsonBuilder builder = new GsonBuilder();
@@ -80,7 +87,7 @@ public class Home extends AppCompatActivity {
 
                 Intent intent = new Intent(Home.this, ShowCoupon.class);
                 intent.putExtra("coupon", gson.toJson(coupons.get(position)));
-                startActivity(intent);
+                startActivityForResult(intent, VIEW_COUPON);
             }
         });
 
@@ -111,5 +118,42 @@ public class Home extends AppCompatActivity {
         });
 
         back.setOnClickListener(view -> finish());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        db = CouponDatabase.getInstance(this);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == VIEW_COUPON) {
+                int result = data.getIntExtra("result", 0);
+
+                if (result == ShowCoupon.COUPON_DELETED) {
+                    Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
+
+                    coupons.remove(coupon);
+
+                    AsyncTask.execute(() -> db.couponDao().delete(coupon));
+
+                    adapter.notifyDataSetChanged();
+                } else if (result == EditCoupon.COUPON_EDITED) {
+                    Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
+
+                    int i = 0;
+                    while ((coupons.get(i).uid != coupon.uid) && i < coupons.size()) {
+                        i++;
+                    }
+
+                    if (i != coupons.size()) {
+                        coupons.set(i, coupon);
+                        AsyncTask.execute(() -> db.couponDao().update(coupon));
+                        adapter.notifyItemChanged(i);
+                    }
+                }
+            }
+        }
     }
 }

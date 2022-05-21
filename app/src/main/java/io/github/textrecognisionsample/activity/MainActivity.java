@@ -1,27 +1,15 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
-import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.ImageProxy;
 
-import com.google.gson.Gson;
-
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.util.Objects;
+import io.github.textrecognisionsample.R;
 
 public class MainActivity extends AppCompatActivity {
 

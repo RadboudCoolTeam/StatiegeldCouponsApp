@@ -1,4 +1,4 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

@@ -1,8 +1,10 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import io.github.textrecognisionsample.R;
 
 public class AccountSettings extends AppCompatActivity {
 

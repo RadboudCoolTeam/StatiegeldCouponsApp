@@ -1,4 +1,6 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.model;
+
+import io.github.textrecognisionsample.R;
 
 public enum SupermarketChain {
     AH, COOP, ALDI, LIDL, JUMBO;

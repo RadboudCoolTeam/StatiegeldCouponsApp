@@ -1,11 +1,14 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.model;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
+
+import io.github.textrecognisionsample.model.Coupon;
 
 @Dao
 public interface CouponDao {
@@ -28,5 +31,8 @@ public interface CouponDao {
     void insertAll(Coupon... Coupons);
 
     @Delete
-    void delete(Coupon Coupon);
+    void delete(Coupon coupon);
+
+    @Update
+    void update(Coupon coupon);
 }

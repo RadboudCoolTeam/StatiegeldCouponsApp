@@ -1,4 +1,4 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.activity;
 
 import android.Manifest;
 import android.content.ContentValues;
@@ -28,6 +28,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+
+import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.util.Analyzer;
 
 public class CameraX extends AppCompatActivity implements View.OnClickListener {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;

@@ -1,4 +1,4 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.util;
 
 import android.graphics.Bitmap;
 

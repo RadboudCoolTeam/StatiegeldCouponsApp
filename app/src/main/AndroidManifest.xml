@@ -23,11 +23,11 @@
             android:value="ocr" />
 
         <activity
-            android:name=".CameraX"
+            android:name=".activity.CameraX"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -38,10 +38,14 @@
 
         </activity>
         <activity
-            android:name=".Home"
+            android:name=".activity.Home"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ShowCoupon"
+            android:name=".activity.ShowCoupon"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.EditCoupon"
             android:screenOrientation="portrait" />
     </application>
 

@@ -1,14 +1,16 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class EditCoupon extends AppCompatActivity {
+import io.github.textrecognisionsample.R;
+
+public class Account extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_coupon);
+        setContentView(R.layout.activity_account);
     }
 }

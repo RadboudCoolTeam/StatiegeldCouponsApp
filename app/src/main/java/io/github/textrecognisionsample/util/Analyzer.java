@@ -1,10 +1,9 @@
-package io.github.textrecognisionsample;
+package io.github.textrecognisionsample.util;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.Image;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageAnalysis;
@@ -20,10 +19,11 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
-import com.google.mlkit.vision.text.TextRecognizerOptionsInterface;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.util.List;
+
+import io.github.textrecognisionsample.activity.CameraX;
 
 public class Analyzer implements ImageAnalysis.Analyzer {
 
