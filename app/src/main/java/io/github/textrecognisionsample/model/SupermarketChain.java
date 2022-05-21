@@ -20,4 +20,20 @@ public enum SupermarketChain {
         }
         return 0;
     }
+
+    public String getFriendlyName() {
+        switch (this) {
+            case AH:
+                return "Albert Heijn";
+            case COOP:
+                return "Coop";
+            case ALDI:
+                return "Aldi";
+            case LIDL:
+                return "Lidl";
+            case JUMBO:
+            default:
+                return "Jumbo";
+        }
+    }
 }

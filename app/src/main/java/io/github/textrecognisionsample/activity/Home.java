@@ -143,7 +143,7 @@ public class Home extends AppCompatActivity {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
 
                     int i = 0;
-                    while ((coupons.get(i).uid != coupon.uid) && i < coupons.size()) {
+                    while (i < coupons.size() && (coupons.get(i).uid != coupon.uid)) {
                         i++;
                     }
 

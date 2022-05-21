@@ -7,36 +7,85 @@ import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import io.github.textrecognisionsample.model.SupermarketChain;
 
 
 public class DataAnalysis {
 
-    String[] pre_ana = {};
-    ArrayList<String> analysis = new ArrayList<>();
+    private ArrayList<String> analysis = new ArrayList<>();
 
-    String[] albert = {"albert", "heijn"};
+    private final List<Pair<SupermarketChain, String[]>> shopData = new ArrayList<>();
 
-    public void pre_analysis(Intent data) {
-        pre_ana = data.getStringExtra("text").toLowerCase().split(" ");
-        analysis.addAll(Arrays.asList(pre_ana));
+    private final String[] albert = {"albert", "heijn"};
+    private final String[] jumbo = {"jumbo"};
+    private final String[] lidl = {"lidl", "ldl", "lgdl"};
+    private final String[] aldi = {"aldi", "aldl"};
+
+    private final String data;
+
+    public DataAnalysis(String data) {
+        this.data = data;
+        shopData.add(Pair.of(SupermarketChain.AH, new String[]{"albert", "heijn"}));
+        shopData.add(Pair.of(SupermarketChain.JUMBO, new String[]{"jumbo"}));
+        shopData.add(Pair.of(SupermarketChain.LIDL, new String[]{"lidl", "ldl", "lgdl"}));
+        shopData.add(Pair.of(SupermarketChain.ALDI, new String[]{"aldi", "aldl"}));
+        shopData.add(Pair.of(SupermarketChain.COOP, new String[]{"coop"}));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public String filterData(Intent data) {
+    public void filterData(Intent data) {
 
-        pre_analysis(data);
+        HashMap<SupermarketChain, Integer> shops = new HashMap<>();
 
-        for (int i = 0; i < albert.length; i++) {
+        pre_analysis(analysis);
 
-            for (int k = 0; k < analysis.size(); k++) {
-
-                int result_albert = LevenshteinDistance(albert[i], analysis.get(k));
-            }
-
+        for (SupermarketChain value : SupermarketChain.values()) {
+            shops.put(value, 0);
         }
 
+        for (Pair<SupermarketChain, String[]> pair : shopData) {
+            shops.put(pair.getFirst(), Compability(pair.getSecond(), analysis));
+        }
 
-        return "";
+        data.putExtra("shop", shops.entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                .limit(1)
+                .findAny()
+                .get().getKey().getFriendlyName()
+        );
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public int Compability(String[] array, ArrayList<String> analysis) {
+
+        ArrayList<Integer> results = new ArrayList<>();
+        int result;
+
+        for (int i = 0; i < array.length; i++) {
+            for (int k = 0; k < analysis.size(); k++) {
+                result = LevenshteinDistance(array[i], analysis.get(k));
+                results.add(result);
+            }
+        }
+
+        Collections.sort(results);
+
+        return Collections.min(results);
+    }
+
+    public void pre_analysis(ArrayList<String> analysis) {
+        String[] pre_ana = data.toLowerCase(Locale.ROOT)
+                .split("[ \n]");
+
+        analysis.addAll(Arrays.asList(pre_ana));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

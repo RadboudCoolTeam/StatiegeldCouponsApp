@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.Image;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 
@@ -50,6 +52,7 @@ public class Analyzer implements ImageAnalysis.Analyzer {
 
                             Task<List<Barcode>> result1 = scanner.process(inputImage)
                                     .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+                                        @RequiresApi(api = Build.VERSION_CODES.N)
                                         @Override
                                         public void onSuccess(List<Barcode> barcodes) {
                                             if (barcodes.size() > 0) {
@@ -57,6 +60,12 @@ public class Analyzer implements ImageAnalysis.Analyzer {
                                             } else {
                                                 intent.putExtra("barcode", "No data");
                                             }
+
+                                            System.out.println(visionText.getText());
+
+                                            DataAnalysis dataAnalysis = new DataAnalysis(visionText.getText());
+                                            dataAnalysis.filterData(intent);
+
                                             cameraX.setResult(Activity.RESULT_OK, intent);
                                             cameraX.finish();
                                         }

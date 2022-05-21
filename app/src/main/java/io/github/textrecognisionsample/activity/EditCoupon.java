@@ -26,8 +26,8 @@ import io.github.textrecognisionsample.model.SupermarketChain;
 
 public class EditCoupon extends AppCompatActivity {
 
-    public static int COUPON_EDITED = 1;
-    public static int COUPON_UNCHANGED = 2;
+    public static int COUPON_EDITED = 3;
+    public static int COUPON_UNCHANGED = 4;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override

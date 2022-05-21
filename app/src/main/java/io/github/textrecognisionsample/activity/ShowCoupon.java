@@ -24,6 +24,7 @@ public class ShowCoupon extends AppCompatActivity {
     public static int COUPON_DELETED = 1;
     public static int EDIT_COUPON = 2;
     private boolean edited = false;
+    Coupon coupon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,7 @@ public class ShowCoupon extends AppCompatActivity {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Coupon coupon = gson.fromJson(getIntent().getExtras().getString("coupon"), Coupon.class);
+        coupon = gson.fromJson(getIntent().getExtras().getString("coupon"), Coupon.class);
 
         ImageButton showBarcodeBack = findViewById(R.id.showBarcodeBack);
         ImageButton showBarcodeEdit = findViewById(R.id.showBarcodeEdit);
@@ -100,7 +101,7 @@ public class ShowCoupon extends AppCompatActivity {
                 if (result == EditCoupon.COUPON_EDITED) {
                     GsonBuilder builder = new GsonBuilder();
                     Gson gson = builder.create();
-                    Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
+                    coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
                     updateCouponUi(coupon);
 
                     edited = true;

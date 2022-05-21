@@ -46,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == CameraX.TAKE_PICTURE_CODE) {
                 String text = data.getStringExtra("barcode");
+                String shop = data.getStringExtra("shop");
                 EditText edit = findViewById(R.id.editTextTextMultiLine);
-                edit.setText(text);
+                edit.setText(text + "\n" + shop);
             }
         }
     }
