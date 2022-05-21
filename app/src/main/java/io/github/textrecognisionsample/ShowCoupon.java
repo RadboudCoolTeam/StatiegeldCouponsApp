@@ -35,6 +35,7 @@ public class ShowCoupon extends AppCompatActivity {
         ImageButton showBarcodeDelete = findViewById(R.id.showBarcodeDelete);
 
         EAN13Writer barcodeWriter = new EAN13Writer();
+
         BitMatrix bitMatrix = barcodeWriter.encode(coupon.getData(), BarcodeFormat.EAN_13, 300, 150);
 
         barcodeImage.setImageBitmap(Util.matrixToBitmap(bitMatrix));

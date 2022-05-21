@@ -2,39 +2,42 @@ package io.github.textrecognisionsample;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.EAN13Writer;
+import com.google.zxing.oned.UPCEANReader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Home extends AppCompatActivity {
 
-    private static ArrayList<Coupon> coupons = new ArrayList<>();
+    private ArrayList<Coupon> coupons = new ArrayList<>();
+    private CouponDatabase db;
 
-    private int counter;
+    int counter;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -42,6 +45,13 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        AsyncTask.execute(() -> {
+            db = CouponDatabase.getInstance(this);
+            CouponDao dao = db.couponDao();
+            List<Coupon> dbCoupons = dao.getAll();
+            coupons.addAll(dbCoupons);
+        });
 
         Button add = findViewById(R.id.add_button);
         Button back = findViewById(R.id.back_button);
@@ -77,15 +87,29 @@ public class Home extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         add.setOnClickListener(view -> {
-            Coupon coupon = new Coupon(addDate.getText().toString(), addMoney.getText().toString(),
-                    addBarcode.getText().toString(),
-                    SupermarketChain.valueOf(spinner.getSelectedItem().toString()));
-            coupons.add(coupon);
-            adapter.notifyItemInserted(coupons.size() - 1);
+            try {
+                EAN13Writer barcodeWriter = new EAN13Writer();
+
+                BitMatrix bitMatrix = barcodeWriter.encode(addBarcode.getText().toString(),
+                        BarcodeFormat.EAN_13, 300, 150);
+
+                Coupon coupon = new Coupon(addDate.getText().toString(), addMoney.getText().toString(),
+                        addBarcode.getText().toString(),
+                        SupermarketChain.valueOf(spinner.getSelectedItem().toString()));
+                coupons.add(coupon);
+
+                AsyncTask.execute(() -> db.couponDao().insertAll(coupon));
+
+                adapter.notifyItemInserted(coupons.size() - 1);
+            } catch (Exception e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
+                builder.setMessage("Please, verify coupon and try again!")
+                        .setTitle("Wrong barcode length!");
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         });
 
         back.setOnClickListener(view -> finish());
     }
-
-
 }
