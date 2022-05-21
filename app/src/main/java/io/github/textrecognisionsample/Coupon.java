@@ -4,12 +4,14 @@ public class Coupon {
 
     private String date;
     private String money;
+    private String data;
     private SupermarketChain supermarketChain;
 
 
-    public Coupon(String date, String money, SupermarketChain supermarketChain) {
+    public Coupon(String date, String money, String data, SupermarketChain supermarketChain) {
         this.date = date;
         this.money = money;
+        this.data = data;
         this.supermarketChain = supermarketChain;
     }
 
@@ -35,5 +37,13 @@ public class Coupon {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }

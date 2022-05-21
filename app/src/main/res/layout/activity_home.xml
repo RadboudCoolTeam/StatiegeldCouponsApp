@@ -17,6 +17,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
+    <EditText
+        android:id="@+id/add_barcode"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
     <Spinner
         android:id="@+id/add_chain"
         android:layout_width="fill_parent"

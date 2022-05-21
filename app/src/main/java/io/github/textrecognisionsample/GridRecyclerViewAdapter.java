@@ -2,15 +2,15 @@ package io.github.textrecognisionsample;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
 
@@ -48,12 +48,23 @@ public class GridRecyclerViewAdapter extends RecyclerView.Adapter<GridRecyclerVi
         protected TextView couponDate;
         protected TextView couponMoney;
         protected ImageView imageView;
+        protected MaterialCardView materialCardView;
 
         public ViewHolder(View view) {
             super(view);
             couponDate = view.findViewById(R.id.date_Text);
             couponMoney = view.findViewById(R.id.money_Text);
             imageView = view.findViewById(R.id.supermarket_chain_Image);
+            materialCardView = view.findViewById(R.id.coupon_id);
+
+            materialCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (clickListener != null) {
+                        clickListener.onItemClick(view, getAdapterPosition());
+                    }
+                }
+            });
         }
 
         @Override
