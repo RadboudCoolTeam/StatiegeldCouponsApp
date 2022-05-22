@@ -2,18 +2,22 @@ package io.github.textrecognisionsample.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.util.DataAnalysis;
 
 public class MainActivity extends AppCompatActivity {
 
     private final int TAKE_PICTURE_CODE = 1;
+    DataAnalysis data_an = new DataAnalysis("JAke is a dogo");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("UnsafeOptInUsageError")
+    @SuppressLint("SetTextI18n")
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -47,8 +52,13 @@ public class MainActivity extends AppCompatActivity {
             if (requestCode == CameraX.TAKE_PICTURE_CODE) {
                 String text = data.getStringExtra("barcode");
                 String shop = data.getStringExtra("shop");
+                String price = data.getStringExtra("shop_price");
+               // String DEBUG = data.getStringExtra("text");
                 EditText edit = findViewById(R.id.editTextTextMultiLine);
-                edit.setText(text + "\n" + shop);
+                 edit.setText(text + "\n" + shop + "\n" + "€" + price);
+
+                //DEBUG
+                // edit.setText(data_an.join_all_words());
             }
         }
     }

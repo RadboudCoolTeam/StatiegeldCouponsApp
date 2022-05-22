@@ -1,5 +1,6 @@
 package io.github.textrecognisionsample.util;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import io.github.textrecognisionsample.model.SupermarketChain;
 
@@ -23,12 +25,9 @@ public class DataAnalysis {
 
     private final List<Pair<SupermarketChain, String[]>> shopData = new ArrayList<>();
 
-    private final String[] albert = {"albert", "heijn"};
-    private final String[] jumbo = {"jumbo"};
-    private final String[] lidl = {"lidl", "ldl", "lgdl"};
-    private final String[] aldi = {"aldi", "aldl"};
-
     private final String data;
+
+    private StringBuilder new_string = new StringBuilder();
 
     public DataAnalysis(String data) {
         this.data = data;
@@ -39,6 +38,7 @@ public class DataAnalysis {
         shopData.add(Pair.of(SupermarketChain.COOP, new String[]{"coop"}));
     }
 
+    @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void filterData(Intent data) {
 
@@ -61,6 +61,12 @@ public class DataAnalysis {
                 .findAny()
                 .get().getKey().getFriendlyName()
         );
+
+        String price = getPrice(join_all_words(analysis));
+
+        data.putExtra("shop_price", price);
+
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -86,6 +92,42 @@ public class DataAnalysis {
                 .split("[ \n]");
 
         analysis.addAll(Arrays.asList(pre_ana));
+    }
+
+    public String getPrice(String new_analysis) {
+
+        if(new_analysis.contains("€")) {
+            int index = new_analysis.indexOf("€");
+            for(int i = index + 1; i < index + 6; i++) {
+
+                if(Character.isDigit(new_analysis.charAt(i))) {
+                    new_string.append(new_analysis.charAt(i));
+                } else if(new_analysis.charAt(i) == '.' || new_analysis.charAt(i) == ',' ) {
+                    new_string.append('.');
+                } else if(new_analysis.charAt(i) == 'O') {
+                    new_string.append('0');
+                }
+                else {
+                    break;
+                }
+            }
+
+        } else {
+            return "No price found";
+        }
+        double to_round = Math.floor(Double.parseDouble(new_string.toString()) * 100.0) / 100.0;
+
+        return String.valueOf(to_round);
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public String join_all_words(ArrayList<String> analysis){
+        StringJoiner join = new StringJoiner("");
+        for(String i : analysis) {
+            join.add(i);
+        }
+        return join.toString();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
