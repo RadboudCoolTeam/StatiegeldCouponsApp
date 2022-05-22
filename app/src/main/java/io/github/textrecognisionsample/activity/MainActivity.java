@@ -17,7 +17,6 @@ import io.github.textrecognisionsample.util.DataAnalysis;
 public class MainActivity extends AppCompatActivity {
 
     private final int TAKE_PICTURE_CODE = 1;
-    DataAnalysis data_an = new DataAnalysis("JAke is a dogo");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
                 EditText edit = findViewById(R.id.editTextTextMultiLine);
                  edit.setText(text + "\n" + shop + "\n" + "€" + price);
 
-                //DEBUG
-                // edit.setText(data_an.join_all_words());
             }
         }
     }
