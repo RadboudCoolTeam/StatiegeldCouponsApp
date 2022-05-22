@@ -112,13 +112,13 @@ public class DataAnalysis {
                 }
             }
 
-        } else {
-            return "No price found";
+            double to_round = Math.floor(Double.parseDouble(new_string.toString()) * 100.0) / 100.0;
+
+            return "€" + String.valueOf(to_round);
+
         }
-        double to_round = Math.floor(Double.parseDouble(new_string.toString()) * 100.0) / 100.0;
 
-        return String.valueOf(to_round);
-
+        return "No price found";
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

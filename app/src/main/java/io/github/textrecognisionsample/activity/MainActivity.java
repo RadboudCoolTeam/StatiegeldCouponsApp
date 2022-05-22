@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 String price = data.getStringExtra("shop_price");
                // String DEBUG = data.getStringExtra("text");
                 EditText edit = findViewById(R.id.editTextTextMultiLine);
-                 edit.setText(text + "\n" + shop + "\n" + "€" + price);
+                 edit.setText(text + "\n" + shop + "\n" + price);
 
             }
         }
