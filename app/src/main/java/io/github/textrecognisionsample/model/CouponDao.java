@@ -21,8 +21,8 @@ public interface CouponDao {
     @Query("SELECT * FROM coupons WHERE uid LIKE :uid LIMIT 1")
     Coupon findByUid(int uid);
 
-    @Query("SELECT * FROM coupons WHERE supermarket_chain LIKE :first LIMIT 1")
-    Coupon findBySupermarketChain(String first);
+    @Query("SELECT * FROM coupons WHERE supermarket_chain LIKE :first")
+    List<Coupon> findBySupermarketChain(String first);
 
     @Query("DELETE FROM coupons")
     public void nukeTable();

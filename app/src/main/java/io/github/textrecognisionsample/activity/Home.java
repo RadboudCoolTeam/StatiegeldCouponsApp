@@ -1,8 +1,11 @@
 package io.github.textrecognisionsample.activity;
 
+import android.annotation.SuppressLint;
 import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,10 +19,14 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipDrawable;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,6 +46,7 @@ import io.github.textrecognisionsample.model.Coupon;
 import io.github.textrecognisionsample.model.CouponDao;
 import io.github.textrecognisionsample.model.CouponDatabase;
 import io.github.textrecognisionsample.model.SupermarketChain;
+import io.github.textrecognisionsample.util.Result;
 
 public class Home extends AppCompatActivity {
 
@@ -46,9 +54,9 @@ public class Home extends AppCompatActivity {
     private CouponDatabase db;
     private GridRecyclerViewAdapter adapter;
 
-    public static int VIEW_COUPON = 1;
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,11 +70,109 @@ public class Home extends AppCompatActivity {
             coupons.addAll(dbCoupons);
         });
 
-        Button add = findViewById(R.id.add_button);
-        Button back = findViewById(R.id.back_button);
-        EditText addDate = findViewById(R.id.add_date);
-        EditText addMoney = findViewById(R.id.add_money);
-        EditText addBarcode = findViewById(R.id.add_barcode);
+        ChipGroup group = findViewById(R.id.chips_list);
+        ArrayList<Chip> chips = new ArrayList<>();
+
+        Chip chip = new Chip(group.getContext());
+        chip.setText("All");
+        ChipDrawable chipDrawable = ChipDrawable.createFromAttributes(this,
+                null,
+                0,
+                com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice);
+        chipDrawable.setCheckable(true);
+        chip.setChipDrawable(chipDrawable);
+        chip.setChecked(true);
+        group.addView(chip);
+        chips.add(chip);
+
+        for (SupermarketChain chain : SupermarketChain.values()) {
+            chip = new Chip(group.getContext());
+            chip.setText(chain.getFriendlyName());
+            chipDrawable = ChipDrawable.createFromAttributes(this,
+                    null,
+                    0,
+                    com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice);
+            chipDrawable.setCheckable(true);
+            chip.setChipDrawable(chipDrawable);
+            chip.setRippleColorResource(chain.getColor());
+            group.addView(chip);
+            chips.add(chip);
+        }
+
+        chips.get(0).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                coupons.clear();
+                AsyncTask.execute(() -> {
+                    db = CouponDatabase.getInstance(Home.this);
+                    CouponDao dao = db.couponDao();
+                    List<Coupon> dbCoupons = dao.getAll();
+                    coupons.addAll(dbCoupons);
+                    runOnUiThread(() -> adapter.notifyDataSetChanged());
+                });
+
+                for (int i = 1; i < chips.size(); i++) {
+                    chips.get(i).setChecked(false);
+                }
+
+                chips.get(0).setChecked(true);
+            }
+        });
+
+        for (int i = 1; i < chips.size(); i++) {
+            int finalI = i;
+            chips.get(i).setOnClickListener(new View.OnClickListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onClick(View view) {
+
+                    int count = 0;
+                    for (int i = 1; i < chips.size(); i++) {
+                        if (chips.get(i).isChecked()) {
+                            count++;
+                        }
+                    }
+
+                    coupons.clear();
+                    if (count == 0) {
+                        AsyncTask.execute(() -> {
+                            db = CouponDatabase.getInstance(Home.this);
+                            CouponDao dao = db.couponDao();
+                            List<Coupon> dbCoupons = dao.getAll();
+                            coupons.addAll(dbCoupons);
+                            runOnUiThread(() -> adapter.notifyDataSetChanged());
+                        });
+
+                        for (int i = 1; i < chips.size(); i++) {
+                            chips.get(i).setChecked(false);
+                        }
+
+                        chips.get(0).setChecked(true);
+                    } else {
+                        AsyncTask.execute(() -> {
+                            db = CouponDatabase.getInstance(Home.this);
+                            CouponDao dao = db.couponDao();
+
+                            for (int i = 1; i < chips.size(); i++) {
+                                if (chips.get(i).isChecked()) {
+                                    List<Coupon> dbCoupons = dao.findBySupermarketChain(
+                                            SupermarketChain.getByFriendlyName(
+                                                    chips.get(i).getText().toString()
+                                            ).name()
+                                    );
+                                    coupons.addAll(dbCoupons);
+                                }
+                            }
+
+                            runOnUiThread(() -> adapter.notifyDataSetChanged());
+                        });
+                        chips.get(0).setChecked(false);
+                    }
+                }
+            });
+        }
+
+
         FloatingActionButton fab = findViewById(R.id.edit_fab);
 
         fab.setImageResource(R.drawable.ic_baseline_add_24);
@@ -75,16 +181,11 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, CameraX.class);
-                startActivityForResult(intent, CameraX.TAKE_PICTURE_CODE);
+                startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
             }
         });
 
-        Spinner spinner = findViewById(R.id.add_chain);
-        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-                Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList())));
-
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        //recyclerView.setNestedScrollingEnabled(false);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         adapter = new GridRecyclerViewAdapter(this, coupons);
@@ -99,37 +200,11 @@ public class Home extends AppCompatActivity {
 
                 Intent intent = new Intent(Home.this, ShowCoupon.class);
                 intent.putExtra("coupon", gson.toJson(coupons.get(position)));
-                startActivityForResult(intent, VIEW_COUPON);
+                startActivityForResult(intent, Result.VIEW_COUPON);
             }
         });
 
         recyclerView.setAdapter(adapter);
-
-        add.setOnClickListener(view -> {
-            try {
-                EAN13Writer barcodeWriter = new EAN13Writer();
-
-                BitMatrix bitMatrix = barcodeWriter.encode(addBarcode.getText().toString(),
-                        BarcodeFormat.EAN_13, 300, 150);
-
-                Coupon coupon = new Coupon(addDate.getText().toString(), addMoney.getText().toString(),
-                        addBarcode.getText().toString(),
-                        SupermarketChain.valueOf(spinner.getSelectedItem().toString()));
-                coupons.add(coupon);
-
-                AsyncTask.execute(() -> db.couponDao().insertAll(coupon));
-
-                adapter.notifyItemInserted(coupons.size() - 1);
-            } catch (Exception e) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
-                builder.setMessage("Please, verify coupon and try again!")
-                        .setTitle("Wrong barcode length!");
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-        back.setOnClickListener(view -> finish());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -141,18 +216,25 @@ public class Home extends AppCompatActivity {
         db = CouponDatabase.getInstance(this);
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == VIEW_COUPON) {
+            if (requestCode == Result.VIEW_COUPON) {
                 int result = data.getIntExtra("result", 0);
 
-                if (result == ShowCoupon.COUPON_DELETED) {
+                if (result == Result.COUPON_DELETED) {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
 
-                    coupons.remove(coupon);
+                    int i = 0;
+                    while (i < coupons.size() && (coupons.get(i).uid != coupon.uid)) {
+                        i++;
+                    }
+
+                    coupons.removeIf(e -> e.uid == coupon.uid);
 
                     AsyncTask.execute(() -> db.couponDao().delete(coupon));
 
-                    adapter.notifyDataSetChanged();
-                } else if (result == EditCoupon.COUPON_EDITED) {
+                    adapter.notifyItemRemoved(i);
+                    adapter.notifyItemRangeChanged(i, coupons.size());
+
+                } else if (result == Result.COUPON_EDITED) {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
 
                     int i = 0;
@@ -166,33 +248,39 @@ public class Home extends AppCompatActivity {
                         adapter.notifyItemChanged(i);
                     }
                 }
-            } else if (requestCode == CameraX.TAKE_PICTURE_CODE) {
-                String text = data.getStringExtra("barcode");
+            } else if (requestCode == Result.TAKE_PICTURE_CODE) {
+                String barcode = data.getStringExtra("barcode");
                 String shop = data.getStringExtra("shop");
                 String price = data.getStringExtra("shop_price");
-                // String DEBUG = data.getStringExtra("text");
-                EditText addDate = findViewById(R.id.add_date);
-                EditText addMoney = findViewById(R.id.add_money);
-                EditText addBarcode = findViewById(R.id.add_barcode);
-                Spinner spinner = findViewById(R.id.add_chain);
 
-
-                SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
                 Date date = new Date(System.currentTimeMillis());
 
-                addDate.setText(formatter.format(date));
-                addMoney.setText(price);
-                addBarcode.setText(text);
-
                 List<String> values = Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList());
-                spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, values));
 
                 int i = 0;
                 while (i < values.size() && !values.get(i).equals(shop)) {
                     i++;
                 }
 
-                spinner.setSelection(i);
+                Coupon coupon = new Coupon(
+                        formatter.format(date),
+                        price,
+                        barcode,
+                        SupermarketChain.valueOf(values.get(i))
+                );
+
+                Intent intent = new Intent(Home.this, EditCoupon.class);
+
+                intent.putExtra("coupon", gson.toJson(coupon, Coupon.class));
+                intent.putExtra("isEdit", false);
+
+                startActivityForResult(intent, Result.COUPON_CREATED);
+            } else if (requestCode == Result.COUPON_CREATED) {
+                Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
+                AsyncTask.execute(() -> db.couponDao().insertAll(coupon));
+                coupons.add(coupon);
+                adapter.notifyItemInserted(coupons.size() - 1);
             }
         }
     }

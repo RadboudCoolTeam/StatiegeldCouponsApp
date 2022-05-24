@@ -6,41 +6,14 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:context=".activity.Home">
-    <EditText
-        android:id="@+id/add_date"
-        android:hint="date"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
 
-    <EditText
-        android:id="@+id/add_money"
-        android:layout_width="fill_parent"
-        android:hint="money"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/add_barcode"
-        android:layout_width="fill_parent"
-        android:hint="barcode"
-        android:layout_height="wrap_content" />
-
-    <Spinner
-        android:id="@+id/add_chain"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/add_button"
-        android:layout_width="fill_parent"
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chips_list"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add" />
+        android:orientation="vertical">
 
-
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Back" />
+    </com.google.android.material.chip.ChipGroup>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

@@ -1,9 +1,14 @@
 package io.github.textrecognisionsample.model;
 
+import android.graphics.Color;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import io.github.textrecognisionsample.R;
 
 public enum SupermarketChain {
-    AH, COOP, ALDI, LIDL, JUMBO;
+    AH, COOP, ALDI, LIDL, JUMBO, UNKNOWN;
 
     public int getDrawable() {
         switch (this) {
@@ -17,8 +22,9 @@ public enum SupermarketChain {
                 return R.drawable.ic_lidl;
             case JUMBO:
                 return R.drawable.ic_jumbo;
+            default:
+                return R.drawable.ic_baseline_error_outline_24;
         }
-        return 0;
     }
 
     public String getFriendlyName() {
@@ -32,8 +38,39 @@ public enum SupermarketChain {
             case LIDL:
                 return "Lidl";
             case JUMBO:
-            default:
                 return "Jumbo";
+            default:
+                return "Unknown";
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public int getColor() {
+        switch (this) {
+            case AH:
+                return R.color.ah_color;
+            case COOP:
+                return R.color.coop_color;
+            case ALDI:
+                return R.color.aldi_color;
+            case LIDL:
+                return R.color.lidl_color;
+            case JUMBO:
+                return R.color.jumbo_color;
+            default:
+                return R.color.gray_400;
+        }
+    }
+
+    public static SupermarketChain getByFriendlyName(String friendlyName) {
+        switch (friendlyName) {
+            case "Albert Heijn": return SupermarketChain.AH;
+            case "Coop": return SupermarketChain.COOP;
+            case "Aldi": return SupermarketChain.ALDI;
+            case "Lidl": return SupermarketChain.LIDL;
+            case "Jumbo": return SupermarketChain.JUMBO;
+            default:
+                return SupermarketChain.UNKNOWN;
         }
     }
 }

@@ -23,11 +23,9 @@ import java.util.stream.Collectors;
 import io.github.textrecognisionsample.R;
 import io.github.textrecognisionsample.model.Coupon;
 import io.github.textrecognisionsample.model.SupermarketChain;
+import io.github.textrecognisionsample.util.Result;
 
 public class EditCoupon extends AppCompatActivity {
-
-    public static int COUPON_EDITED = 3;
-    public static int COUPON_UNCHANGED = 4;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -39,6 +37,7 @@ public class EditCoupon extends AppCompatActivity {
         Gson gson = builder.create();
 
         Coupon coupon = gson.fromJson(getIntent().getExtras().getString("coupon"), Coupon.class);
+        boolean isEdit = getIntent().getExtras().getBoolean("isEdit");
 
         Spinner editSelectChain = findViewById(R.id.editSelectChain);
         List<String> values = Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList());
@@ -55,7 +54,7 @@ public class EditCoupon extends AppCompatActivity {
         editMoney.setText(coupon.getMoney());
 
         EditText editBarcode = findViewById(R.id.editBarcode);
-        editBarcode.setText(coupon.getData());
+        editBarcode.setText(coupon.getBarcode());
 
         Button button = findViewById(R.id.editSave);
         button.setOnClickListener(new View.OnClickListener() {
@@ -68,9 +67,9 @@ public class EditCoupon extends AppCompatActivity {
                     coupon.setMoney(editMoney.getText().toString());
                 }
 
-                if (!editBarcode.getText().toString().equals(coupon.getData())) {
+                if (!editBarcode.getText().toString().equals(coupon.getBarcode())) {
                     edited = true;
-                    coupon.setData(editBarcode.getText().toString());
+                    coupon.setBarcode(editBarcode.getText().toString());
                 }
 
                 if (!editSelectChain.getSelectedItem().toString().equals(coupon.getSupermarketChain().name())) {
@@ -79,13 +78,21 @@ public class EditCoupon extends AppCompatActivity {
                 }
 
                 Intent intent = new Intent();
-                if (edited) {
-                    intent.putExtra("coupon", gson.toJson(coupon));
-                    intent.putExtra("result", COUPON_EDITED);
-                    setResult(RESULT_OK, intent);
-                    finish();
+
+                if (isEdit) {
+                    if (edited) {
+                        intent.putExtra("coupon", gson.toJson(coupon));
+                        intent.putExtra("result", Result.COUPON_EDITED);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    } else {
+                        intent.putExtra("result", Result.COUPON_UNCHANGED);
+                        finish();
+                    }
                 } else {
-                    intent.putExtra("result", COUPON_UNCHANGED);
+                    intent.putExtra("coupon", gson.toJson(coupon));
+                    intent.putExtra("result", Result.COUPON_CREATED);
+                    setResult(RESULT_OK, intent);
                     finish();
                 }
             }
@@ -95,7 +102,10 @@ public class EditCoupon extends AppCompatActivity {
         editBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finishActivity(COUPON_UNCHANGED);
+                Intent intent = new Intent();
+                intent.putExtra("result", Result.COUPON_UNCHANGED);
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
 

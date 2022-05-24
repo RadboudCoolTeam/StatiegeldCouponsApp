@@ -38,8 +38,6 @@ public class CameraX extends AppCompatActivity implements View.OnClickListener {
     Button bTakePicture;
     PreviewView previewView;
 
-    public static final int TAKE_PICTURE_CODE = 2;
-
     private final ExecutorService cameraExecutor = null;
 
     int REQUEST_CODE_PERMISSIONS = 10;

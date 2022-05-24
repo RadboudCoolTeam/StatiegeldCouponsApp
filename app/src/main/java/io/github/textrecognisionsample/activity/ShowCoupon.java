@@ -17,12 +17,11 @@ import com.google.zxing.oned.EAN13Writer;
 
 import io.github.textrecognisionsample.R;
 import io.github.textrecognisionsample.model.Coupon;
+import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
 
 public class ShowCoupon extends AppCompatActivity {
 
-    public static int COUPON_DELETED = 1;
-    public static int EDIT_COUPON = 2;
     private boolean edited = false;
     Coupon coupon;
 
@@ -47,7 +46,7 @@ public class ShowCoupon extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.putExtra("coupon", gson.toJson(coupon));
-                intent.putExtra("result", edited ? EditCoupon.COUPON_EDITED : EditCoupon.COUPON_UNCHANGED);
+                intent.putExtra("result", edited ? Result.COUPON_EDITED : Result.COUPON_UNCHANGED);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -60,7 +59,7 @@ public class ShowCoupon extends AppCompatActivity {
 
                 intent.putExtra("coupon", gson.toJson(coupon));
 
-                startActivityForResult(intent, EDIT_COUPON);
+                startActivityForResult(intent, Result.EDIT_COUPON);
             }
         });
 
@@ -69,7 +68,7 @@ public class ShowCoupon extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.putExtra("coupon", gson.toJson(coupon));
-                intent.putExtra("result", COUPON_DELETED);
+                intent.putExtra("result", Result.COUPON_DELETED);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -81,11 +80,16 @@ public class ShowCoupon extends AppCompatActivity {
         ImageView barcodeImage = findViewById(R.id.barcodeImage);
         ImageView showSupermarketChain = findViewById(R.id.showSupermarketChain);
 
-        EAN13Writer barcodeWriter = new EAN13Writer();
+        try {
+            EAN13Writer barcodeWriter = new EAN13Writer();
 
-        BitMatrix bitMatrix = barcodeWriter.encode(coupon.getData(), BarcodeFormat.EAN_13, 300, 150);
+            BitMatrix bitMatrix = barcodeWriter.encode(coupon.getBarcode(), BarcodeFormat.EAN_13, 300, 150);
 
-        barcodeImage.setImageBitmap(Util.matrixToBitmap(bitMatrix));
+            barcodeImage.setImageBitmap(Util.matrixToBitmap(bitMatrix));
+        } catch (Exception e) {
+            barcodeImage.setImageResource(R.drawable.ic_baseline_error_outline_24);
+        }
+
         showPrice.setText(coupon.getMoney() + " €");
         showSupermarketChain.setImageResource(coupon.getSupermarketChain().getDrawable());
     }
@@ -94,11 +98,11 @@ public class ShowCoupon extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == EDIT_COUPON) {
+            if (requestCode == Result.EDIT_COUPON) {
 
                 int result = data.getIntExtra("result", 0);
 
-                if (result == EditCoupon.COUPON_EDITED) {
+                if (result == Result.COUPON_EDITED) {
                     GsonBuilder builder = new GsonBuilder();
                     Gson gson = builder.create();
                     coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);

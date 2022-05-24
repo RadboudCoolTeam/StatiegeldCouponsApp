@@ -19,16 +19,16 @@ public class Coupon {
     private String money;
 
     @ColumnInfo(name = "data")
-    private String data;
+    private String barcode;
 
     @ColumnInfo(name = "supermarket_chain")
     private SupermarketChain supermarketChain;
 
 
-    public Coupon(String date, String money, String data, SupermarketChain supermarketChain) {
+    public Coupon(String date, String money, String barcode, SupermarketChain supermarketChain) {
         this.date = date;
         this.money = money;
-        this.data = data;
+        this.barcode = barcode;
         this.supermarketChain = supermarketChain;
     }
 
@@ -56,11 +56,11 @@ public class Coupon {
         this.date = date;
     }
 
-    public String getData() {
-        return data;
+    public String getBarcode() {
+        return barcode;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 }

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import io.github.textrecognisionsample.R;
 import io.github.textrecognisionsample.util.DataAnalysis;
+import io.github.textrecognisionsample.util.Result;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CameraX.class);
-                startActivityForResult(intent, CameraX.TAKE_PICTURE_CODE);
+                startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
             }
         });
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == CameraX.TAKE_PICTURE_CODE) {
+            if (requestCode == Result.TAKE_PICTURE_CODE) {
                 String text = data.getStringExtra("barcode");
                 String shop = data.getStringExtra("shop");
                 String price = data.getStringExtra("shop_price");
