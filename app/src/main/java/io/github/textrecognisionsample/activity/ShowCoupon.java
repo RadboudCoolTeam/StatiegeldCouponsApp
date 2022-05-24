@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.BarcodeFormat;
@@ -40,8 +41,8 @@ public class ShowCoupon extends AppCompatActivity {
         coupon = gson.fromJson(getIntent().getExtras().getString("coupon"), Coupon.class);
 
         ImageButton showBarcodeBack = findViewById(R.id.showBarcodeBack);
-        ImageButton showBarcodeEdit = findViewById(R.id.showBarcodeEdit);
-        ImageButton showBarcodeDelete = findViewById(R.id.showBarcodeDelete);
+        FloatingActionButton showBarcodeEdit = findViewById(R.id.showBarcodeEdit);
+        FloatingActionButton showBarcodeDelete = findViewById(R.id.showBarcodeDelete);
 
         showBarcodeDelete.setImageResource(R.drawable.ic_baseline_delete_24);
 

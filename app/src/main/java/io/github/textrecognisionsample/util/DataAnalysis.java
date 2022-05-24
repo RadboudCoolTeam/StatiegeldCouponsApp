@@ -64,7 +64,6 @@ public class DataAnalysis {
 
         data.putExtra("shop_price", getPrice(price));
 
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

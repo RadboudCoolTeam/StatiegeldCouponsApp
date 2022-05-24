@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,12 +44,12 @@ public class Home extends AppCompatActivity {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
-    private boolean clicked = false;
+    private boolean floatingMenuClicked = false;
 
-    Animation rotateOpen;
-    Animation rotateClose;
-    Animation fromBottom;
-    Animation toBottom;
+    private Animation rotateOpen;
+    private Animation rotateClose;
+    private Animation fromBottom;
+    private Animation toBottom;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -121,7 +120,6 @@ public class Home extends AppCompatActivity {
         });
 
         for (int i = 1; i < chips.size(); i++) {
-            int finalI = i;
             chips.get(i).setOnClickListener(new View.OnClickListener() {
                 @SuppressLint("NotifyDataSetChanged")
                 @Override
@@ -190,25 +188,30 @@ public class Home extends AppCompatActivity {
         addManually.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
+                if (floatingMenuClicked) {
 
-                SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-                Date date = new Date(System.currentTimeMillis());
+                    onAddButtonClicked();
 
-                Coupon coupon = new Coupon(
-                        formatter.format(date),
-                        "",
-                        "",
-                        SupermarketChain.UNKNOWN
-                );
+                    GsonBuilder builder = new GsonBuilder();
+                    Gson gson = builder.create();
 
-                Intent intent = new Intent(Home.this, EditCoupon.class);
+                    SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+                    Date date = new Date(System.currentTimeMillis());
 
-                intent.putExtra("coupon", gson.toJson(coupon, Coupon.class));
-                intent.putExtra("isEdit", false);
+                    Coupon coupon = new Coupon(
+                            formatter.format(date),
+                            "",
+                            "",
+                            SupermarketChain.UNKNOWN
+                    );
 
-                startActivityForResult(intent, Result.COUPON_CREATED);
+                    Intent intent = new Intent(Home.this, EditCoupon.class);
+
+                    intent.putExtra("coupon", gson.toJson(coupon, Coupon.class));
+                    intent.putExtra("isEdit", false);
+
+                    startActivityForResult(intent, Result.COUPON_CREATED);
+                }
             }
         });
 
@@ -217,8 +220,13 @@ public class Home extends AppCompatActivity {
         addTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Home.this, CameraX.class);
-                startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
+                if (floatingMenuClicked) {
+
+                    onAddButtonClicked();
+
+                    Intent intent = new Intent(Home.this, CameraX.class);
+                    startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
+                }
             }
         });
 
@@ -230,7 +238,10 @@ public class Home extends AppCompatActivity {
         adapter.setClickListener(new GridRecyclerViewAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(Home.this, "Item: " + coupons.get(position).getSupermarketChain().name(), Toast.LENGTH_SHORT).show();
+
+                if (floatingMenuClicked) {
+                    onAddButtonClicked();
+                }
 
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
@@ -245,9 +256,9 @@ public class Home extends AppCompatActivity {
     }
 
     private void onAddButtonClicked() {
-        setVisibility(clicked);
-        setAnimation(clicked);
-        clicked = !clicked;
+        setVisibility(floatingMenuClicked);
+        setAnimation(floatingMenuClicked);
+        floatingMenuClicked = !floatingMenuClicked;
     }
 
     private void setAnimation(boolean clicked) {
