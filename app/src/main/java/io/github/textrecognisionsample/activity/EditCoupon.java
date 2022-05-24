@@ -45,7 +45,7 @@ public class EditCoupon extends AppCompatActivity {
         editSelectChain.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, values));
 
         int i = 0;
-        while (!values.get(i).equals(coupon.getSupermarketChain().name()) && i < values.size()) {
+        while (i < values.size() && !values.get(i).equals(coupon.getSupermarketChain().name())) {
             i++;
         }
 

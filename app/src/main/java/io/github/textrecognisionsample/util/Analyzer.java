@@ -29,7 +29,7 @@ import io.github.textrecognisionsample.activity.CameraX;
 
 public class Analyzer implements ImageAnalysis.Analyzer {
 
-    private CameraX cameraX;
+    private final CameraX cameraX;
 
     public Analyzer(CameraX cameraX) {
         this.cameraX = cameraX;
@@ -60,8 +60,6 @@ public class Analyzer implements ImageAnalysis.Analyzer {
                                             } else {
                                                 intent.putExtra("barcode", "No data");
                                             }
-
-                                            System.out.println(visionText.getText());
 
                                             DataAnalysis dataAnalysis = new DataAnalysis(visionText.getText());
                                             dataAnalysis.filterData(intent);

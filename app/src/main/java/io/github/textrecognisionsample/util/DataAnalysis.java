@@ -21,7 +21,7 @@ import io.github.textrecognisionsample.model.SupermarketChain;
 
 public class DataAnalysis {
 
-    private ArrayList<String> analysis = new ArrayList<>();
+    private final ArrayList<String> analysis = new ArrayList<>();
 
     private final List<Pair<SupermarketChain, String[]>> shopData = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class DataAnalysis {
                 .sorted(Comparator.comparingInt(Map.Entry::getValue))
                 .limit(1)
                 .findAny()
-                .get().getKey().getFriendlyName()
+                .get().getKey().name()
         );
 
         String price = join_all_words(analysis).toLowerCase(Locale.ROOT);

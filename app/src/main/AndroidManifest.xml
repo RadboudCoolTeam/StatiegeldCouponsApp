@@ -27,7 +27,7 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.Home"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -35,11 +35,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <activity
-            android:name=".activity.Home"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.ShowCoupon"
             android:screenOrientation="portrait" />

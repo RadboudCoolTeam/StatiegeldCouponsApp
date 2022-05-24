@@ -20,14 +20,17 @@ import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.EAN13Writer;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,8 +47,6 @@ public class Home extends AppCompatActivity {
     private GridRecyclerViewAdapter adapter;
 
     public static int VIEW_COUPON = 1;
-
-    int counter;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -66,6 +67,17 @@ public class Home extends AppCompatActivity {
         EditText addDate = findViewById(R.id.add_date);
         EditText addMoney = findViewById(R.id.add_money);
         EditText addBarcode = findViewById(R.id.add_barcode);
+        FloatingActionButton fab = findViewById(R.id.edit_fab);
+
+        fab.setImageResource(R.drawable.ic_baseline_add_24);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, CameraX.class);
+                startActivityForResult(intent, CameraX.TAKE_PICTURE_CODE);
+            }
+        });
 
         Spinner spinner = findViewById(R.id.add_chain);
         spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
@@ -120,6 +132,7 @@ public class Home extends AppCompatActivity {
         back.setOnClickListener(view -> finish());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -153,6 +166,33 @@ public class Home extends AppCompatActivity {
                         adapter.notifyItemChanged(i);
                     }
                 }
+            } else if (requestCode == CameraX.TAKE_PICTURE_CODE) {
+                String text = data.getStringExtra("barcode");
+                String shop = data.getStringExtra("shop");
+                String price = data.getStringExtra("shop_price");
+                // String DEBUG = data.getStringExtra("text");
+                EditText addDate = findViewById(R.id.add_date);
+                EditText addMoney = findViewById(R.id.add_money);
+                EditText addBarcode = findViewById(R.id.add_barcode);
+                Spinner spinner = findViewById(R.id.add_chain);
+
+
+                SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd");
+                Date date = new Date(System.currentTimeMillis());
+
+                addDate.setText(formatter.format(date));
+                addMoney.setText(price);
+                addBarcode.setText(text);
+
+                List<String> values = Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList());
+                spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, values));
+
+                int i = 0;
+                while (i < values.size() && !values.get(i).equals(shop)) {
+                    i++;
+                }
+
+                spinner.setSelection(i);
             }
         }
     }
