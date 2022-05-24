@@ -9,17 +9,20 @@
 
     <EditText
         android:id="@+id/add_date"
+        android:hint="date"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/add_money"
         android:layout_width="fill_parent"
+        android:hint="money"
         android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/add_barcode"
         android:layout_width="fill_parent"
+        android:hint="barcode"
         android:layout_height="wrap_content" />
 
     <Spinner
