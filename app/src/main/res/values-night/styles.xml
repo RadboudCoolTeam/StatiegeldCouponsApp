@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="Widget.Theme.TextRecognisionSample.MyView" parent="">
+    <style name="Widget.Theme.TextRecognisionSample.MyView" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@color/gray_600</item>
     </style>
 </resources>

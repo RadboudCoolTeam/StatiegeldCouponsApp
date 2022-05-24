@@ -8,11 +8,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -39,16 +41,13 @@ public class EditCoupon extends AppCompatActivity {
         Coupon coupon = gson.fromJson(getIntent().getExtras().getString("coupon"), Coupon.class);
         boolean isEdit = getIntent().getExtras().getBoolean("isEdit");
 
-        Spinner editSelectChain = findViewById(R.id.editSelectChain);
-        List<String> values = Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList());
-        editSelectChain.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, values));
+        AutoCompleteTextView editSelectChain = findViewById(R.id.editSelectChainText);
+        List<String> values = Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name)
+                .collect(Collectors.toList());
+        editSelectChain.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, values));
 
-        int i = 0;
-        while (i < values.size() && !values.get(i).equals(coupon.getSupermarketChain().name())) {
-            i++;
-        }
-
-        editSelectChain.setSelection(i);
+        editSelectChain.setText(coupon.getSupermarketChain().name(), false);
+        //editSelectChain.setText(coupon.getSupermarketChain().name());
 
         EditText editMoney = findViewById(R.id.editMoney);
         editMoney.setText(coupon.getMoney());
@@ -72,9 +71,9 @@ public class EditCoupon extends AppCompatActivity {
                     coupon.setBarcode(editBarcode.getText().toString());
                 }
 
-                if (!editSelectChain.getSelectedItem().toString().equals(coupon.getSupermarketChain().name())) {
+                if (!editSelectChain.getText().toString().equals(coupon.getSupermarketChain().name())) {
                     edited = true;
-                    coupon.setSupermarketChain(SupermarketChain.valueOf(editSelectChain.getSelectedItem().toString()));
+                    coupon.setSupermarketChain(SupermarketChain.valueOf(editSelectChain.getText().toString()));
                 }
 
                 Intent intent = new Intent();

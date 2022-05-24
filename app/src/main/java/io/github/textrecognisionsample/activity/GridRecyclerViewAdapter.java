@@ -43,7 +43,7 @@ public class GridRecyclerViewAdapter extends RecyclerView.Adapter<GridRecyclerVi
         Coupon coupon = coupons.get(position);
 
         holder.couponDate.setText(coupon.getDate());
-        holder.couponMoney.setText(coupon.getMoney());
+        holder.couponMoney.setText(coupon.getMoney() + "€");
         holder.imageView.setImageResource(coupon.getSupermarketChain().getDrawable());
     }
 
