@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.oned.EAN13Writer;
 
 import io.github.textrecognisionsample.R;
@@ -24,6 +25,9 @@ public class ShowCoupon extends AppCompatActivity {
 
     private boolean edited = false;
     Coupon coupon;
+
+    private final int BARCODE_WIDTH = 400;
+    private final int BARCODE_HEIGHT = 150;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,8 @@ public class ShowCoupon extends AppCompatActivity {
         ImageButton showBarcodeBack = findViewById(R.id.showBarcodeBack);
         ImageButton showBarcodeEdit = findViewById(R.id.showBarcodeEdit);
         ImageButton showBarcodeDelete = findViewById(R.id.showBarcodeDelete);
+
+        showBarcodeDelete.setImageResource(R.drawable.ic_baseline_delete_24);
 
         updateCouponUi(coupon);
 
@@ -58,6 +64,7 @@ public class ShowCoupon extends AppCompatActivity {
                 Intent intent = new Intent(ShowCoupon.this, EditCoupon.class);
 
                 intent.putExtra("coupon", gson.toJson(coupon));
+                intent.putExtra("isEdit", true);
 
                 startActivityForResult(intent, Result.EDIT_COUPON);
             }
@@ -83,11 +90,17 @@ public class ShowCoupon extends AppCompatActivity {
         try {
             EAN13Writer barcodeWriter = new EAN13Writer();
 
-            BitMatrix bitMatrix = barcodeWriter.encode(coupon.getBarcode(), BarcodeFormat.EAN_13, 300, 150);
+            BitMatrix bitMatrix = barcodeWriter.encode(coupon.getBarcode(), BarcodeFormat.EAN_13, BARCODE_WIDTH, BARCODE_HEIGHT);
 
             barcodeImage.setImageBitmap(Util.matrixToBitmap(bitMatrix));
         } catch (Exception e) {
-            barcodeImage.setImageResource(R.drawable.ic_baseline_error_outline_24);
+            try {
+                Code128Writer writer = new Code128Writer();
+                BitMatrix bitMatrix = writer.encode(coupon.getBarcode(), BarcodeFormat.CODE_128, BARCODE_WIDTH, BARCODE_HEIGHT);
+                barcodeImage.setImageBitmap(Util.matrixToBitmap(bitMatrix));
+            } catch (Exception e1) {
+                barcodeImage.setImageResource(R.drawable.ic_baseline_error_outline_24);
+            }
         }
 
         showPrice.setText(coupon.getMoney() + " €");

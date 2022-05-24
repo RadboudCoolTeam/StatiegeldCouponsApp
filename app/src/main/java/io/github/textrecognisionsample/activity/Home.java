@@ -1,26 +1,18 @@
 package io.github.textrecognisionsample.activity;
 
 import android.annotation.SuppressLint;
-import android.content.AsyncQueryHandler;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.ColorStateList;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,9 +22,6 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.oned.EAN13Writer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,12 +45,24 @@ public class Home extends AppCompatActivity {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
+    private boolean clicked = false;
+
+    Animation rotateOpen;
+    Animation rotateClose;
+    Animation fromBottom;
+    Animation toBottom;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        rotateOpen = AnimationUtils.loadAnimation(this, R.anim.rotate_open);
+        rotateClose = AnimationUtils.loadAnimation(this, R.anim.rotate_close);
+        fromBottom = AnimationUtils.loadAnimation(this, R.anim.from_bottom);
+        toBottom = AnimationUtils.loadAnimation(this, R.anim.to_bottom);
 
         AsyncTask.execute(() -> {
             db = CouponDatabase.getInstance(this);
@@ -179,6 +180,42 @@ public class Home extends AppCompatActivity {
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
+            public void onClick(View view) {
+                onAddButtonClicked();
+            }
+        });
+
+        FloatingActionButton addManually = findViewById(R.id.add_manually);
+
+        addManually.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GsonBuilder builder = new GsonBuilder();
+                Gson gson = builder.create();
+
+                SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+                Date date = new Date(System.currentTimeMillis());
+
+                Coupon coupon = new Coupon(
+                        formatter.format(date),
+                        "",
+                        "",
+                        SupermarketChain.UNKNOWN
+                );
+
+                Intent intent = new Intent(Home.this, EditCoupon.class);
+
+                intent.putExtra("coupon", gson.toJson(coupon, Coupon.class));
+                intent.putExtra("isEdit", false);
+
+                startActivityForResult(intent, Result.COUPON_CREATED);
+            }
+        });
+
+        FloatingActionButton addTakePhoto = findViewById(R.id.add_take_photo);
+
+        addTakePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, CameraX.class);
                 startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
@@ -205,6 +242,39 @@ public class Home extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
+    }
+
+    private void onAddButtonClicked() {
+        setVisibility(clicked);
+        setAnimation(clicked);
+        clicked = !clicked;
+    }
+
+    private void setAnimation(boolean clicked) {
+        FloatingActionButton addManually = findViewById(R.id.add_manually);
+        FloatingActionButton addTakePhoto = findViewById(R.id.add_take_photo);
+        FloatingActionButton fab = findViewById(R.id.edit_fab);
+        if (!clicked) {
+            addManually.startAnimation(fromBottom);
+            addTakePhoto.startAnimation(fromBottom);
+            fab.startAnimation(rotateOpen);
+        } else {
+            addManually.startAnimation(toBottom);
+            addTakePhoto.startAnimation(toBottom);
+            fab.startAnimation(rotateClose);
+        }
+    }
+
+    private void setVisibility(boolean clicked) {
+        FloatingActionButton addManually = findViewById(R.id.add_manually);
+        FloatingActionButton addTakePhoto = findViewById(R.id.add_take_photo);
+        if (!clicked) {
+            addManually.setVisibility(View.VISIBLE);
+            addTakePhoto.setVisibility(View.VISIBLE);
+        } else {
+            addManually.setVisibility(View.INVISIBLE);
+            addTakePhoto.setVisibility(View.INVISIBLE);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -277,10 +347,15 @@ public class Home extends AppCompatActivity {
 
                 startActivityForResult(intent, Result.COUPON_CREATED);
             } else if (requestCode == Result.COUPON_CREATED) {
-                Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
-                AsyncTask.execute(() -> db.couponDao().insertAll(coupon));
-                coupons.add(coupon);
-                adapter.notifyItemInserted(coupons.size() - 1);
+
+                int result = data.getIntExtra("result", 0);
+
+                if (result != Result.COUPON_UNCHANGED) {
+                    Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
+                    AsyncTask.execute(() -> db.couponDao().insertAll(coupon));
+                    coupons.add(coupon);
+                    adapter.notifyItemInserted(coupons.size() - 1);
+                }
             }
         }
     }

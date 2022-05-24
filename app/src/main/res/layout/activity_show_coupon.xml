@@ -8,12 +8,12 @@
 
     <ImageView
         android:id="@+id/barcodeImage"
-        android:layout_width="316dp"
-        android:layout_height="164dp"
-        android:layout_marginBottom="108dp"
+        android:layout_width="match_parent"
+        android:layout_height="175dp"
+        android:layout_marginBottom="132dp"
         app:layout_constraintBottom_toTopOf="@+id/showSupermarketChain"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.526"
+        app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
@@ -29,7 +29,7 @@
 
     <TextView
         android:id="@+id/showPrice"
-        android:layout_width="150dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginTop="144dp"
         android:textAlignment="center"
@@ -39,11 +39,11 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.285" />
+        app:layout_constraintVertical_bias="0.171" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar3"
-        android:layout_width="413dp"
+        android:layout_width="match_parent"
         android:layout_height="55dp"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"

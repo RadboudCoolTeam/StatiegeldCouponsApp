@@ -45,6 +45,28 @@
             android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
             android:focusable="true" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_manually"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible"
+            android:clickable="true"
+            app:layout_constraintBottom_toTopOf="@+id/edit_fab"
+            app:layout_constraintEnd_toEndOf="@+id/edit_fab"
+            app:srcCompat="@drawable/ic_baseline_edit_24" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_take_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible"
+            android:clickable="true"
+            app:layout_constraintBottom_toTopOf="@+id/add_manually"
+            app:layout_constraintEnd_toEndOf="@+id/add_manually"
+            app:srcCompat="@drawable/ic_baseline_camera_24" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

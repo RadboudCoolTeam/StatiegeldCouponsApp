@@ -99,19 +99,19 @@ public class DataAnalysis {
         ArrayList<Double> possibilities = new ArrayList<>();
         StringBuilder new_string = new StringBuilder();
 
-        for(int y = 0; y < new_analysis.length(); y++){
-            if(new_analysis.charAt(y) == '€'){
+        for (int y = 0; y < new_analysis.length(); y++) {
+            if (new_analysis.charAt(y) == '€') {
                 euro_signs.add(y);
             }
         }
 
-        if(euro_signs.size() >= 1) {
+        if (euro_signs.size() >= 1) {
 
             for (int v = 0; v < euro_signs.size(); v++) {
 
                 new_string.setLength(0);
 
-                for (int i = euro_signs.get(v) + 1; i < Math.min(euro_signs.get(v) + 6, new_analysis.length()) ; i++) {
+                for (int i = euro_signs.get(v) + 1; i < Math.min(euro_signs.get(v) + 6, new_analysis.length()); i++) {
 
                     if (Character.isDigit(new_analysis.charAt(i))) {
                         new_string.append(new_analysis.charAt(i));
@@ -124,9 +124,12 @@ public class DataAnalysis {
                     }
                 }
 
-                double to_round = Math.floor(Double.parseDouble(new_string.toString()) * 100.0) / 100.0;
-
-                possibilities.add(to_round);
+                try {
+                    double to_round = Math.floor(Double.parseDouble(new_string.toString()) * 100.0) / 100.0;
+                    possibilities.add(to_round);
+                } catch (NumberFormatException e) {
+                    return "No price found";
+                }
             }
             double max = Collections.max(possibilities);
 
@@ -137,9 +140,9 @@ public class DataAnalysis {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public String join_all_words(ArrayList<String> analysis){
+    public String join_all_words(ArrayList<String> analysis) {
         StringJoiner join = new StringJoiner("");
-        for(String i : analysis) {
+        for (String i : analysis) {
             join.add(i);
         }
         return join.toString();
