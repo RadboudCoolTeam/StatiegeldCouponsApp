@@ -8,7 +8,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="412dp"
+        android:layout_width="match_parent"
         android:layout_height="55dp"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
@@ -69,6 +69,7 @@
                 android:layout_width="207dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:layout_marginStart="20dp"
                 android:text="Supermarket"
                 android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
@@ -104,6 +105,7 @@
                 android:layout_width="70dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
+                android:layout_marginStart="20dp"
                 android:text="Money"
                 android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
@@ -131,6 +133,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="33dp"
                 android:layout_weight="1"
+                android:layout_marginStart="20dp"
                 android:text="Barcode"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
