@@ -45,7 +45,9 @@ public class DataAnalysis {
         pre_analysis(analysis);
 
         for (SupermarketChain value : SupermarketChain.values()) {
-            shops.put(value, 0);
+            if (value != SupermarketChain.UNKNOWN) {
+                shops.put(value, 0);
+            }
         }
 
         for (Pair<SupermarketChain, String[]> pair : shopData) {

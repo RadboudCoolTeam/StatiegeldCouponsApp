@@ -7,8 +7,6 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "coupons")
 public class Coupon {
 
-    public static int BARCODE_LEN = 13;
-
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
