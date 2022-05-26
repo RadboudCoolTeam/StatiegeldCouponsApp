@@ -9,6 +9,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
+
+import java.io.IOException;
+import java.net.URLConnection;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import com.google.gson.reflect.*;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +36,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
@@ -34,6 +47,7 @@ import io.github.textrecognisionsample.model.Coupon;
 import io.github.textrecognisionsample.model.CouponDao;
 import io.github.textrecognisionsample.model.CouponDatabase;
 import io.github.textrecognisionsample.model.SupermarketChain;
+import io.github.textrecognisionsample.util.GetWeather;
 import io.github.textrecognisionsample.util.Result;
 
 public class Home extends AppCompatActivity {
@@ -50,6 +64,9 @@ public class Home extends AppCompatActivity {
     private Animation rotateClose;
     private Animation fromBottom;
     private Animation toBottom;
+    private String API_Key;
+    private String latitude;
+    private String longitude;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -63,12 +80,27 @@ public class Home extends AppCompatActivity {
         fromBottom = AnimationUtils.loadAnimation(this, R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(this, R.anim.to_bottom);
 
+        API_Key = "60c7107ceb41a27db6adae7949c0b546";
+        latitude = "35";
+        longitude = "139";
+
+        GetWeather weather = new GetWeather(API_Key, latitude, longitude);
+
         AsyncTask.execute(() -> {
             db = CouponDatabase.getInstance(this);
             CouponDao dao = db.couponDao();
             List<Coupon> dbCoupons = dao.getAll();
             coupons.addAll(dbCoupons);
         });
+
+        AsyncTask.execute(() -> {
+            try {
+                String result = weather.getWeather();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
 
         ChipGroup group = findViewById(R.id.chips_list);
         ArrayList<Chip> chips = new ArrayList<>();
@@ -253,6 +285,10 @@ public class Home extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
+    }
+
+    private void extracted(MalformedURLException e) {
+        e.printStackTrace();
     }
 
     private void onAddButtonClicked() {

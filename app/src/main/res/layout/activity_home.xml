@@ -22,8 +22,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/background_1" />
+                android:scaleType="fitXY"
+                android:src="@drawable/background_2" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:layout_width="match_parent"
@@ -39,6 +39,7 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/round_btn"
                 android:src="@drawable/ic_baseline_account_circle_24" />
+
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

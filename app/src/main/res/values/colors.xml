@@ -11,6 +11,7 @@
     <color name="light_blue_600">#FF039BE5</color>
     <color name="gray_400">#FFBDBDBD</color>
     <color name="gray_600">#FF757575</color>
+    <color name="light_gray">#d3d3d3</color>>
 
     <color name="ah_color">#00ADE6</color>
     <color name="coop_color">#EB8E00</color>
