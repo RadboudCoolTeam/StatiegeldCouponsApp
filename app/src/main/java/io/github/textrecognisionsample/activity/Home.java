@@ -6,19 +6,17 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 
 import java.io.IOException;
-import java.net.URLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
-
-import com.google.gson.reflect.*;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,10 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
@@ -64,9 +59,9 @@ public class Home extends AppCompatActivity {
     private Animation rotateClose;
     private Animation fromBottom;
     private Animation toBottom;
-    private String API_Key;
-    private String latitude;
-    private String longitude;
+    private String API_Key  = "60c7107ceb41a27db6adae7949c0b546";
+    private String latitude = "35";
+    private String longitude = "139";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -79,10 +74,6 @@ public class Home extends AppCompatActivity {
         rotateClose = AnimationUtils.loadAnimation(this, R.anim.rotate_close);
         fromBottom = AnimationUtils.loadAnimation(this, R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(this, R.anim.to_bottom);
-
-        API_Key = "60c7107ceb41a27db6adae7949c0b546";
-        latitude = "35";
-        longitude = "139";
 
         GetWeather weather = new GetWeather(API_Key, latitude, longitude);
 
@@ -98,6 +89,36 @@ public class Home extends AppCompatActivity {
                 String result = weather.getWeather();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        });
+
+
+        ImageButton avatarButton = findViewById(R.id.avatarButton);
+
+        avatarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popupMenu = new PopupMenu(Home.this, avatarButton);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.option_account:
+                                System.out.println(1);
+                                break;
+                            case R.id.option_settings:
+                                System.out.println(2);
+                                break;
+                        }
+
+                        return true;
+                    }
+                });
+
+                popupMenu.show();
+
             }
         });
 

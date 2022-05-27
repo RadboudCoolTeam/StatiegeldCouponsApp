@@ -6,9 +6,27 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.model.web.WebSupermarketChain;
 
 public enum SupermarketChain {
     AH, COOP, ALDI, LIDL, JUMBO, UNKNOWN;
+
+    public static SupermarketChain of(WebSupermarketChain webSupermarketChain) {
+        switch (webSupermarketChain) {
+            case AH:
+                return SupermarketChain.AH;
+            case ALDI:
+                return SupermarketChain.ALDI;
+            case COOP:
+                return SupermarketChain.COOP;
+            case LIDL:
+                return SupermarketChain.LIDL;
+            case JUMBO:
+                return SupermarketChain.JUMBO;
+            default:
+                return SupermarketChain.UNKNOWN;
+        }
+    }
 
     public int getDrawable() {
         switch (this) {
