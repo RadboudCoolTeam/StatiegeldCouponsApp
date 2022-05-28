@@ -36,7 +36,6 @@ public class Coupon {
                 webCoupon.barcode,
                 SupermarketChain.of(webCoupon.supermarketChain)
         );
-
         coupon.uid = webCoupon.localId;
         return coupon;
     }
