@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
@@ -361,11 +362,11 @@ public class Home extends AppCompatActivity {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
 
                     int i = 0;
-                    while (i < coupons.size() && (coupons.get(i).uid != coupon.uid)) {
+                    while (i < coupons.size() && (!Objects.equals(coupons.get(i).getUid(), coupon.getUid()))) {
                         i++;
                     }
 
-                    coupons.removeIf(e -> e.uid == coupon.uid);
+                    coupons.removeIf(e -> Objects.equals(e.getUid(), coupon.getUid()));
 
                     AsyncTask.execute(() -> db.couponDao().delete(coupon));
 
@@ -376,7 +377,7 @@ public class Home extends AppCompatActivity {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
 
                     int i = 0;
-                    while (i < coupons.size() && (coupons.get(i).uid != coupon.uid)) {
+                    while (i < coupons.size() && (!Objects.equals(coupons.get(i).getUid(), coupon.getUid()))) {
                         i++;
                     }
 

@@ -1,7 +1,7 @@
 package io.github.textrecognisionsample.model.web;
 
 public class WebUser {
-    public String id;
+    public long id;
 
     public String name;
 

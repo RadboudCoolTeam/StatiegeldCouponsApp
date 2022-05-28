@@ -1,8 +1,10 @@
 package io.github.textrecognisionsample.model.web;
 
+import java.util.UUID;
+
 public class WebCoupon {
 
-    public String id;
+    public UUID localId;
 
     public String date;
 
@@ -12,6 +14,7 @@ public class WebCoupon {
 
     public WebSupermarketChain supermarketChain;
 
-    private String userId;
+    private long userId;
 
+    private long id;
 }

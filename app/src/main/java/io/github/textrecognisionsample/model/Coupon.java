@@ -1,16 +1,21 @@
 package io.github.textrecognisionsample.model;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import java.util.UUID;
 
 import io.github.textrecognisionsample.model.web.WebCoupon;
 
 @Entity(tableName = "coupons")
 public class Coupon {
 
-    @PrimaryKey(autoGenerate = true)
-    public int uid;
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "id")
+    private UUID uid;
 
     @ColumnInfo(name = "date")
     private String date;
@@ -25,15 +30,19 @@ public class Coupon {
     private SupermarketChain supermarketChain;
 
     public static Coupon of(WebCoupon webCoupon) {
-        return new Coupon(
+        Coupon coupon = new Coupon(
                 webCoupon.date,
                 webCoupon.money,
                 webCoupon.barcode,
                 SupermarketChain.of(webCoupon.supermarketChain)
         );
+
+        coupon.uid = webCoupon.localId;
+        return coupon;
     }
 
     public Coupon(String date, String money, String barcode, SupermarketChain supermarketChain) {
+        this.uid = UUID.randomUUID();
         this.date = date;
         this.money = money;
         this.barcode = barcode;
@@ -46,6 +55,14 @@ public class Coupon {
 
     public void setSupermarketChain(SupermarketChain supermarketChain) {
         this.supermarketChain = supermarketChain;
+    }
+
+    public UUID getUid() {
+        return uid;
+    }
+
+    public void setUid(UUID uid) {
+        this.uid = uid;
     }
 
     public String getMoney() {
