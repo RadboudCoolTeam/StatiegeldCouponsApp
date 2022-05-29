@@ -129,7 +129,7 @@ public class DataAnalysis {
                     double to_round = Math.floor(Double.parseDouble(new_string.toString()) * 100.0) / 100.0;
                     possibilities.add(to_round);
                 } catch (NumberFormatException e) {
-                    return "No price found";
+                    return "";
                 }
             }
             double max = Collections.max(possibilities);
@@ -137,7 +137,7 @@ public class DataAnalysis {
             return String.valueOf(max);
         }
 
-        return "No price found";
+        return "";
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

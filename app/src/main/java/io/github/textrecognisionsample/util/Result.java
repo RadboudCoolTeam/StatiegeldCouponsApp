@@ -8,4 +8,7 @@ public class Result {
     public static int COUPON_DELETED = 5;
     public static int COUPON_CREATED = 6;
     public static final int TAKE_PICTURE_CODE = 7;
+    public static final int LOG_IN = 8;
+    public static final int LOGGED_IN = 9;
+    public static final int NEW_ACCOUNT = 10;
 }

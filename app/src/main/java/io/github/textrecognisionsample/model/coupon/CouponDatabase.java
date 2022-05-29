@@ -1,4 +1,4 @@
-package io.github.textrecognisionsample.model;
+package io.github.textrecognisionsample.model.coupon;
 
 import android.content.Context;
 

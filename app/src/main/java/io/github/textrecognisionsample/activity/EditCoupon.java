@@ -12,9 +12,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -23,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
-import io.github.textrecognisionsample.model.Coupon;
+import io.github.textrecognisionsample.model.coupon.Coupon;
 import io.github.textrecognisionsample.model.SupermarketChain;
 import io.github.textrecognisionsample.util.Result;
 

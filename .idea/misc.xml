@@ -16,8 +16,8 @@
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_jumbo.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/ic_lidl.xml" value="0.1" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable/round_btn.xml" value="0.256" />
-        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_account.xml" value="0.22" />
-        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_account_create.xml" value="0.22" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_account.xml" value="0.4239316239316239" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_account_create.xml" value="0.3333333333333333" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_account_login.xml" value="0.22" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_account_settings.xml" value="0.2055996656916005" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/activity_camera_x.xml" value="0.3333333333333333" />
@@ -34,6 +34,7 @@
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/layout/sample_supermarket_chain_filter.xml" value="0.20977852068533223" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/menu/overflow_menu.xml" value="0.3227875160324925" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.208" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/xml/network_security_config.xml" value="0.12689969604863222" />
       </map>
     </option>
   </component>

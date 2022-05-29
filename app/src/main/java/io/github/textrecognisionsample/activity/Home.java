@@ -1,27 +1,31 @@
 package io.github.textrecognisionsample.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipDrawable;
@@ -36,20 +40,33 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.locks.AbstractQueuedLongSynchronizer;
 import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
-import io.github.textrecognisionsample.model.Coupon;
-import io.github.textrecognisionsample.model.CouponDao;
-import io.github.textrecognisionsample.model.CouponDatabase;
+import io.github.textrecognisionsample.model.coupon.Coupon;
+import io.github.textrecognisionsample.model.coupon.CouponDao;
+import io.github.textrecognisionsample.model.coupon.CouponDatabase;
+import io.github.textrecognisionsample.model.statistics.StatisticsData;
+import io.github.textrecognisionsample.model.statistics.StatisticsDatabase;
 import io.github.textrecognisionsample.model.SupermarketChain;
+import io.github.textrecognisionsample.model.user.UserData;
+import io.github.textrecognisionsample.model.user.UserDatabase;
+import io.github.textrecognisionsample.model.web.WebCoupon;
+import io.github.textrecognisionsample.model.web.WebUser;
+import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
 import io.github.textrecognisionsample.util.GetWeather;
 import io.github.textrecognisionsample.util.Result;
+import io.github.textrecognisionsample.util.Util;
 
 public class Home extends AppCompatActivity {
 
     private ArrayList<Coupon> coupons = new ArrayList<>();
-    private CouponDatabase db;
+    private CouponDatabase couponDatabase;
+    private StatisticsDatabase statisticsDatabase;
+    private UserDatabase userDatabase;
+
     private GridRecyclerViewAdapter adapter;
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -60,9 +77,9 @@ public class Home extends AppCompatActivity {
     private Animation rotateClose;
     private Animation fromBottom;
     private Animation toBottom;
-    private String API_Key  = "60c7107ceb41a27db6adae7949c0b546";
-    private String latitude = "35";
-    private String longitude = "139";
+
+    private Handler update = new Handler();
+    private Runnable runnable;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -76,13 +93,70 @@ public class Home extends AppCompatActivity {
         fromBottom = AnimationUtils.loadAnimation(this, R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(this, R.anim.to_bottom);
 
+        Properties properties = Util.getProperties(getApplicationContext());
+        String API_Key = properties.getProperty("weather_api_key");
+        String latitude = properties.getProperty("latitude");
+        String longitude = properties.getProperty("longitude");
+
         GetWeather weather = new GetWeather(API_Key, latitude, longitude);
 
         AsyncTask.execute(() -> {
-            db = CouponDatabase.getInstance(this);
-            CouponDao dao = db.couponDao();
+
+            GsonBuilder builder = new GsonBuilder()
+                    .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer());
+
+            Gson gson = builder.create();
+
+            userDatabase = UserDatabase.getInstance(this);
+            List<UserData> userData = userDatabase.userDao().getAll();
+
+            if (userData.size() > 0) {
+                System.out.println(userData.get(0).getData());
+                WebUser webUser = gson.fromJson(userData.get(0).getData(), WebUser.class);
+
+                if (webUser == null) {
+                    webUser = gson.fromJson(Util.getDefaultUser(getApplicationContext()), WebUser.class);
+                    UserDatabase.getInstance(this).userDao().nukeTable();
+                    UserDatabase.getInstance(this).userDao().insert(new UserData(Util.getDefaultUser(getApplicationContext())));
+                }
+
+                Util.getWebUser().updateUser(webUser);
+            } else {
+                UserDatabase.getInstance(this).userDao().insert(new UserData(""));
+            }
+        });
+
+        AsyncTask.execute(() -> {
+            couponDatabase = CouponDatabase.getInstance(this);
+            CouponDao dao = couponDatabase.couponDao();
+
+            try {
+                WebUser webUser = Util.authUser(Util.getWebUser(), getApplicationContext());
+
+                if (Util.isNetworkAvailable(getApplicationContext()) && webUser != null) {
+                    List<WebCoupon> webCoupons = Util.getCoupons(webUser, getApplicationContext());
+                    Util.setIsLoggedIn(true);
+                    Util.setWebUser(webUser);
+
+                    for (WebCoupon coupon : webCoupons) {
+                        if (dao.getAll().stream().anyMatch(e -> e.getUid().equals(coupon.localId))) {
+                            dao.update(Coupon.of(coupon));
+                        } else {
+                            dao.insertAll(Coupon.of(coupon));
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             List<Coupon> dbCoupons = dao.getAll();
             coupons.addAll(dbCoupons);
+            runOnUiThread(() -> adapter.notifyDataSetChanged());
+        });
+
+        AsyncTask.execute(() -> {
+            statisticsDatabase = StatisticsDatabase.getInstance(this);
         });
 
         AsyncTask.execute(() -> {
@@ -106,9 +180,32 @@ public class Home extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
-                            case R.id.option_account:
-                                System.out.println(1);
-                                break;
+                            case R.id.option_account: {
+                                if (Util.isIsLoggedIn()) {
+                                    Intent intent = new Intent(Home.this, Account.class);
+                                    startActivity(intent);
+                                } else {
+                                    AsyncTask.execute(() -> {
+                                        try {
+                                            WebUser userFromApi = Util.authUser(Util.getWebUser(), getApplicationContext());
+                                            if (userFromApi != null) {
+                                                Util.getWebUser().updateUser(userFromApi);
+                                                Util.setIsLoggedIn(true);
+
+                                                Intent intent = new Intent(Home.this, Account.class);
+                                                startActivity(intent);
+                                            } else {
+                                                Intent intent = new Intent(Home.this, AccountLogin.class);
+                                                startActivityForResult(intent, Result.LOG_IN);
+                                            }
+                                        } catch (IOException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                    });
+                                }
+                            }
+
+                            break;
                             case R.id.option_settings:
                                 System.out.println(2);
                                 break;
@@ -158,8 +255,8 @@ public class Home extends AppCompatActivity {
             public void onClick(View view) {
                 coupons.clear();
                 AsyncTask.execute(() -> {
-                    db = CouponDatabase.getInstance(Home.this);
-                    CouponDao dao = db.couponDao();
+                    couponDatabase = CouponDatabase.getInstance(Home.this);
+                    CouponDao dao = couponDatabase.couponDao();
                     List<Coupon> dbCoupons = dao.getAll();
                     coupons.addAll(dbCoupons);
                     runOnUiThread(() -> adapter.notifyDataSetChanged());
@@ -189,8 +286,8 @@ public class Home extends AppCompatActivity {
                     coupons.clear();
                     if (count == 0) {
                         AsyncTask.execute(() -> {
-                            db = CouponDatabase.getInstance(Home.this);
-                            CouponDao dao = db.couponDao();
+                            couponDatabase = CouponDatabase.getInstance(Home.this);
+                            CouponDao dao = couponDatabase.couponDao();
                             List<Coupon> dbCoupons = dao.getAll();
                             coupons.addAll(dbCoupons);
                             runOnUiThread(() -> adapter.notifyDataSetChanged());
@@ -203,8 +300,8 @@ public class Home extends AppCompatActivity {
                         chips.get(0).setChecked(true);
                     } else {
                         AsyncTask.execute(() -> {
-                            db = CouponDatabase.getInstance(Home.this);
-                            CouponDao dao = db.couponDao();
+                            couponDatabase = CouponDatabase.getInstance(Home.this);
+                            CouponDao dao = couponDatabase.couponDao();
 
                             for (int i = 1; i < chips.size(); i++) {
                                 if (chips.get(i).isChecked()) {
@@ -244,6 +341,7 @@ public class Home extends AppCompatActivity {
             public void onClick(View view) {
                 if (floatingMenuClicked) {
 
+                    onAddButtonClicked();
                     onAddButtonClicked();
 
                     GsonBuilder builder = new GsonBuilder();
@@ -307,10 +405,39 @@ public class Home extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
-    }
 
-    private void extracted(MalformedURLException e) {
-        e.printStackTrace();
+        SwipeRefreshLayout swipeRefreshContainer = findViewById(R.id.swipe);
+        swipeRefreshContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                AsyncTask.execute(() -> {
+                    if (Util.isIsLoggedIn()) {
+                        try {
+                            Util.syncDatabases(getApplicationContext());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        List<Coupon> dbCoupons = couponDatabase.couponDao().getAll();
+                        for (Coupon coupon : dbCoupons) {
+                            if (coupons.stream().noneMatch(e -> coupon.getUid().equals(e.getUid()))) {
+                                coupons.add(coupon);
+                            }
+                        }
+
+                        runOnUiThread(() -> {
+                            adapter.notifyDataSetChanged();
+                            swipeRefreshContainer.setRefreshing(false);
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            Toast.makeText(getApplicationContext(), "You are not logged in!", Toast.LENGTH_SHORT).show();
+                            swipeRefreshContainer.setRefreshing(false);
+                        });
+                    }
+                });
+            }
+        });
     }
 
     private void onAddButtonClicked() {
@@ -352,7 +479,7 @@ public class Home extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        db = CouponDatabase.getInstance(this);
+        couponDatabase = CouponDatabase.getInstance(this);
 
         if (resultCode == RESULT_OK) {
             if (requestCode == Result.VIEW_COUPON) {
@@ -366,13 +493,46 @@ public class Home extends AppCompatActivity {
                         i++;
                     }
 
+                    try {
+                        double convert = Double.parseDouble(coupon.getMoney());
+                        AsyncTask.execute(() -> {
+                            List<StatisticsData> statisticsData = statisticsDatabase.statisticsDao()
+                                    .getDataByChain(coupon.getSupermarketChain());
+
+                            if (statisticsData.size() > 0) {
+                                statisticsData.get(0).value += convert;
+                                statisticsDatabase.statisticsDao().update(statisticsData.get(0));
+                            } else {
+                                StatisticsData newData = new StatisticsData();
+                                newData.value = convert;
+                                newData.supermarketChain = coupon.getSupermarketChain();
+                                statisticsDatabase.statisticsDao().insertAll(newData);
+                            }
+                        });
+
+                    } catch (NumberFormatException ne) {
+                        // ignored
+                    }
+
                     coupons.removeIf(e -> Objects.equals(e.getUid(), coupon.getUid()));
 
-                    AsyncTask.execute(() -> db.couponDao().delete(coupon));
+                    AsyncTask.execute(() -> couponDatabase.couponDao().delete(coupon));
 
                     adapter.notifyItemRemoved(i);
                     adapter.notifyItemRangeChanged(i, coupons.size());
 
+                    if (Util.isIsLoggedIn()) {
+                        AsyncTask.execute(
+                                () -> {
+                                    WebCoupon webCoupon = WebCoupon.of(coupon);
+                                    try {
+                                        Util.deleteCoupon(webCoupon, getApplicationContext());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                        );
+                    }
                 } else if (result == Result.COUPON_EDITED) {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
 
@@ -383,8 +543,21 @@ public class Home extends AppCompatActivity {
 
                     if (i != coupons.size()) {
                         coupons.set(i, coupon);
-                        AsyncTask.execute(() -> db.couponDao().update(coupon));
+                        AsyncTask.execute(() -> couponDatabase.couponDao().update(coupon));
                         adapter.notifyItemChanged(i);
+                    }
+
+                    if (Util.isIsLoggedIn()) {
+                        AsyncTask.execute(
+                                () -> {
+                                    WebCoupon webCoupon = WebCoupon.of(coupon);
+                                    try {
+                                        Util.updateCoupon(webCoupon, getApplicationContext());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                        );
                     }
                 }
             } else if (requestCode == Result.TAKE_PICTURE_CODE) {
@@ -421,9 +594,26 @@ public class Home extends AppCompatActivity {
 
                 if (result != Result.COUPON_UNCHANGED) {
                     Coupon coupon = gson.fromJson(data.getStringExtra("coupon"), Coupon.class);
-                    AsyncTask.execute(() -> db.couponDao().insertAll(coupon));
+                    AsyncTask.execute(() -> couponDatabase.couponDao().insertAll(coupon));
                     coupons.add(coupon);
                     adapter.notifyItemInserted(coupons.size() - 1);
+
+                    if (Util.isIsLoggedIn()) {
+                        AsyncTask.execute(
+                                () -> {
+                                    WebCoupon webCoupon = WebCoupon.of(coupon);
+                                    try {
+                                        WebCoupon resultCoupon = Util.updateCoupon(webCoupon,
+                                                getApplicationContext());
+                                        if (resultCoupon != null) {
+                                            coupons.set(coupons.size() - 1, Coupon.of(resultCoupon));
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                        );
+                    }
                 }
             }
         }

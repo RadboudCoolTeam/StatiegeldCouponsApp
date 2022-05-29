@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="io.github.textrecognisionsample">
 
     <uses-feature android:name="android.hardware.camera.any" />
@@ -10,6 +11,8 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -17,7 +20,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TextRecognisionSample">
+        android:theme="@style/Theme.TextRecognisionSample"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="n">
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
@@ -43,6 +48,17 @@
         <activity
             android:name=".activity.EditCoupon"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.Account"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.AccountCreate"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".activity.AccountLogin"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

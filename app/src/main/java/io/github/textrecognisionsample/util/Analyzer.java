@@ -58,7 +58,7 @@ public class Analyzer implements ImageAnalysis.Analyzer {
                                             if (barcodes.size() > 0) {
                                                 intent.putExtra("barcode", barcodes.get(0).getRawValue());
                                             } else {
-                                                intent.putExtra("barcode", "No data");
+                                                intent.putExtra("barcode", "");
                                             }
 
                                             DataAnalysis dataAnalysis = new DataAnalysis(visionText.getText());

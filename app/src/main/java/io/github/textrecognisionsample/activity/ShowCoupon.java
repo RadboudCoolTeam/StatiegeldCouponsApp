@@ -18,7 +18,7 @@ import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.oned.EAN13Writer;
 
 import io.github.textrecognisionsample.R;
-import io.github.textrecognisionsample.model.Coupon;
+import io.github.textrecognisionsample.model.coupon.Coupon;
 import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
 

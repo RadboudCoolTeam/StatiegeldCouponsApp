@@ -15,7 +15,7 @@ import com.google.android.material.card.MaterialCardView;
 import java.util.ArrayList;
 
 import io.github.textrecognisionsample.R;
-import io.github.textrecognisionsample.model.Coupon;
+import io.github.textrecognisionsample.model.coupon.Coupon;
 
 public class GridRecyclerViewAdapter extends RecyclerView.Adapter<GridRecyclerViewAdapter.ViewHolder> {
 

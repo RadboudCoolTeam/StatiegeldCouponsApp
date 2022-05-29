@@ -1,15 +1,13 @@
-package io.github.textrecognisionsample.model;
+package io.github.textrecognisionsample.model.coupon;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
 import java.util.List;
-
-import io.github.textrecognisionsample.model.Coupon;
+import java.util.UUID;
 
 @Dao
 public interface CouponDao {
@@ -20,7 +18,7 @@ public interface CouponDao {
     List<Coupon> loadAllByIds(int[] CouponIds);
 
     @Query("SELECT * FROM coupons WHERE id LIKE :uid LIMIT 1")
-    Coupon findByUid(int uid);
+    Coupon findByUid(UUID uid);
 
     @Query("SELECT * FROM coupons WHERE supermarket_chain LIKE :first")
     List<Coupon> findBySupermarketChain(String first);
