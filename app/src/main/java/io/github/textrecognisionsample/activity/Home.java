@@ -3,7 +3,9 @@ package io.github.textrecognisionsample.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -39,6 +42,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.textrecognisionsample.R;
 import io.github.textrecognisionsample.model.SupermarketChain;
 import io.github.textrecognisionsample.model.coupon.Coupon;
@@ -98,7 +102,14 @@ public class Home extends AppCompatActivity {
 
         GetWeather weather = new GetWeather(API_Key, latitude, longitude);
 
-        ImageButton avatarButton = findViewById(R.id.avatarButton);
+        CircleImageView avatarButton = findViewById(R.id.avatarButton);
+
+        avatarButton.setImageBitmap(
+                Util.resizeBitmap(
+                        ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
+                                .getBitmap(),
+                        Util.MAX_SCALE)
+        );
 
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer())
@@ -128,8 +139,6 @@ public class Home extends AppCompatActivity {
                                 Util.getWebUser().data.length)
                         );
                         avatarButton.invalidate();
-                    } else {
-                        avatarButton.setImageResource(R.drawable.ic_baseline_account_circle_24);
                     }
                 });
 
@@ -166,8 +175,6 @@ public class Home extends AppCompatActivity {
                                     Util.getWebUser().data.length)
                             );
                             avatarButton.invalidate();
-                        } else {
-                            avatarButton.setImageResource(R.drawable.ic_baseline_account_circle_24);
                         }
                     });
                 }
@@ -230,7 +237,6 @@ public class Home extends AppCompatActivity {
 
                             break;
                             case R.id.option_settings:
-                                System.out.println(2);
                                 break;
                         }
 
@@ -445,9 +451,31 @@ public class Home extends AppCompatActivity {
                         runOnUiThread(() -> {
                             adapter.notifyDataSetChanged();
                             swipeRefreshContainer.setRefreshing(false);
+
+                            if (Util.getWebUser().data != null) {
+                                avatarButton.setImageBitmap(BitmapFactory.decodeByteArray(
+                                        Util.getWebUser().data,
+                                        0,
+                                        Util.getWebUser().data.length)
+                                );
+                                avatarButton.invalidate();
+                            } else {
+                                avatarButton.setImageBitmap(
+                                        Util.resizeBitmap(
+                                                ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
+                                                        .getBitmap(),
+                                                Util.MAX_SCALE)
+                                );
+                            }
                         });
                     } else {
                         runOnUiThread(() -> {
+                            avatarButton.setImageBitmap(
+                                    Util.resizeBitmap(
+                                            ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
+                                                    .getBitmap(),
+                                            Util.MAX_SCALE)
+                            );
                             Toast.makeText(getApplicationContext(), "You are not logged in!", Toast.LENGTH_SHORT).show();
                             swipeRefreshContainer.setRefreshing(false);
                         });

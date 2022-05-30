@@ -121,7 +121,6 @@ public class CameraX extends AppCompatActivity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.image_capture_button) {
-            System.out.println("Test");
             capturePhoto();
         }
     }

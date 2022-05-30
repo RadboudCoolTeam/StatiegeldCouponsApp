@@ -2,7 +2,8 @@ package io.github.textrecognisionsample.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -46,6 +47,8 @@ public class Util {
 
     private static boolean isLoggedIn = false;
 
+    public static final int MAX_SCALE = 110;
+
     public static Properties getProperties(Context context) {
         if (properties == null) {
             InputStream inputStream = context.getResources().openRawResource(R.raw.app);
@@ -53,11 +56,36 @@ public class Util {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                e.printStackTrace();
+                // ignored
             }
         }
 
         return properties;
+    }
+
+    public static Bitmap convertToBitmap(Drawable drawable, int widthPixels, int heightPixels) {
+        Bitmap mutableBitmap = Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(mutableBitmap);
+        drawable.setBounds(0, 0, widthPixels, heightPixels);
+        drawable.draw(canvas);
+
+        return mutableBitmap;
+    }
+
+    public static Bitmap resizeBitmap(Bitmap bitmap, int scale) {
+        if (bitmap.getWidth() >= bitmap.getHeight()) {
+            double ratio = (double) Util.MAX_SCALE / bitmap.getWidth();
+            double newHeight = bitmap.getHeight() * ratio;
+
+            bitmap = Bitmap.createScaledBitmap(bitmap, Util.MAX_SCALE, (int) newHeight, false);
+        } else {
+            double ratio = (double) Util.MAX_SCALE / bitmap.getHeight();
+            double newWidth = bitmap.getWidth() * ratio;
+
+            bitmap = Bitmap.createScaledBitmap(bitmap, (int) newWidth, Util.MAX_SCALE, false);
+        }
+
+        return bitmap;
     }
 
     public static String getDefaultUser(Context c) {

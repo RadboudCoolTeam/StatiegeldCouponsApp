@@ -27,10 +27,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.model.user.UserDao;
 import io.github.textrecognisionsample.model.user.UserData;
 import io.github.textrecognisionsample.model.user.UserDatabase;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
+import io.github.textrecognisionsample.util.ByteArrayToBase64TypeAdapter;
 import io.github.textrecognisionsample.util.Util;
 
 public class AccountLogin extends AppCompatActivity {
@@ -44,6 +46,11 @@ public class AccountLogin extends AppCompatActivity {
 
         ImageView imageView = findViewById(R.id.accountLoginLogo);
         imageView.setBackgroundResource(R.drawable.icon);
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer())
+                .registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
+        Gson gson = gsonBuilder.create();
 
         ImageButton back = findViewById(R.id.accountLoginBack);
         back.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +85,14 @@ public class AccountLogin extends AppCompatActivity {
                             Util.setIsLoggedIn(true);
 
                             Util.syncDatabases(getApplicationContext());
+
+                            UserDao userDao = UserDatabase.getInstance(getApplicationContext()).userDao();
+
+                            if (userDao.getAll().size() > 0) {
+                                userDao.nukeTable();
+                            }
+
+                            userDao.insert(new UserData(gson.toJson(userFromApi, WebUser.class)));
 
                             Intent intent = new Intent(AccountLogin.this, Account.class);
                             startActivity(intent);

@@ -94,7 +94,7 @@ public class AccountCreate extends AppCompatActivity {
                         }
 
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        // ignored
                     }
                 });
             }
@@ -112,6 +112,7 @@ public class AccountCreate extends AppCompatActivity {
                     Uri currentUri = data.getData();
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currentUri);
 
+                    bitmap = Util.resizeBitmap(bitmap, Util.MAX_SCALE);
 
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
@@ -122,7 +123,7 @@ public class AccountCreate extends AppCompatActivity {
                     avatar.setImageBitmap(bitmap);
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    // ignored
                 }
             }
         }

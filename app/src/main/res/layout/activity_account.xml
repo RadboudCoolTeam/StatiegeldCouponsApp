@@ -36,7 +36,7 @@
         app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/ic_baseline_navigate_before_24" />
 
-    <ImageButton
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/accountAvatar"
         android:layout_width="109dp"
         android:layout_height="105dp"
