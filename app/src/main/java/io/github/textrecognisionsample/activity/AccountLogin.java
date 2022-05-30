@@ -64,7 +64,7 @@ public class AccountLogin extends AppCompatActivity {
 
                 AsyncTask.execute(() -> {
                     try {
-                        WebUser user = new WebUser(email.getText().toString(), password.getText().toString());
+                        WebUser user = new WebUser(email.getText().toString(), password.getText().toString(), null);
 
                         WebUser userFromApi = Util.authUser(user, view.getContext());
 

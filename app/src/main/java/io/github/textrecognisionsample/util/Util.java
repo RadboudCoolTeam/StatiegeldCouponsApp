@@ -2,7 +2,7 @@ package io.github.textrecognisionsample.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.Image;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -33,7 +33,6 @@ import io.github.textrecognisionsample.model.coupon.CouponDatabase;
 import io.github.textrecognisionsample.model.user.UserData;
 import io.github.textrecognisionsample.model.user.UserDatabase;
 import io.github.textrecognisionsample.model.web.WebCoupon;
-import io.github.textrecognisionsample.model.web.WebImage;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
 
@@ -43,7 +42,7 @@ public class Util {
     private static final int BLACK = 0xFF000000;
     private static Properties properties = null;
 
-    private static WebUser webUser = new WebUser("", "");
+    private static WebUser webUser = new WebUser("", "", null);
 
     private static boolean isLoggedIn = false;
 
@@ -78,7 +77,8 @@ public class Util {
         Util.getWebUser().name = " ";
 
         GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer());
+                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer())
+                .registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
         Gson gson = gsonBuilder.create();
 
         OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
@@ -221,7 +221,7 @@ public class Util {
         return null;
     }
 
-    public static String createAccount(WebUser webUser, WebImage webImage, Context context) throws IOException {
+    public static String createAccount(WebUser webUser, Context context) throws IOException {
         String address = Util.getAddress(context);
         URL url = new URL(address + "users/new");
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -235,7 +235,7 @@ public class Util {
 
         OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
 
-        writer.write(gson.toJson(Pair.of(webUser, webImage), Pair.class));
+        writer.write(gson.toJson(webUser, WebUser.class));
         writer.flush();
 
         StringBuilder stringBuilder = new StringBuilder();

@@ -1,5 +1,7 @@
 package io.github.textrecognisionsample.model.web;
 
+import java.util.Arrays;
+
 public class WebUser {
 
     public long id;
@@ -12,12 +14,19 @@ public class WebUser {
 
     public String passwordHash;
 
-    public WebUser(String email, String password) {
+    public byte[] data;
+
+    public WebUser(String email, String password, byte[] data) {
         this.id = 0;
         this.name = " ";
         this.email = email;
         this.password = password;
         this.passwordHash = "";
+        if (data != null) {
+            this.data = Arrays.copyOf(data, data.length);
+        } else {
+            this.data = null;
+        }
     }
 
     public void updateUser(WebUser webUser) {
@@ -25,6 +34,11 @@ public class WebUser {
         this.name = webUser.name;
         this.email = webUser.email;
         this.password = webUser.password;
+        if (webUser.data != null) {
+            this.data = Arrays.copyOf(webUser.data, webUser.data.length);
+        } else {
+            this.data = null;
+        };
     }
 
     public void reset() {
@@ -33,5 +47,6 @@ public class WebUser {
         this.email = "";
         this.password = "";
         this.passwordHash = "";
+        this.data = null;
     }
 }

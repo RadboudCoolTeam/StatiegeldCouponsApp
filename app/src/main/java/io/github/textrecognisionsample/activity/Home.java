@@ -1,11 +1,9 @@
 package io.github.textrecognisionsample.activity;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,10 +14,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +29,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,21 +37,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.locks.AbstractQueuedLongSynchronizer;
 import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.model.SupermarketChain;
 import io.github.textrecognisionsample.model.coupon.Coupon;
 import io.github.textrecognisionsample.model.coupon.CouponDao;
 import io.github.textrecognisionsample.model.coupon.CouponDatabase;
 import io.github.textrecognisionsample.model.statistics.StatisticsData;
 import io.github.textrecognisionsample.model.statistics.StatisticsDatabase;
-import io.github.textrecognisionsample.model.SupermarketChain;
 import io.github.textrecognisionsample.model.user.UserData;
 import io.github.textrecognisionsample.model.user.UserDatabase;
 import io.github.textrecognisionsample.model.web.WebCoupon;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
+import io.github.textrecognisionsample.util.ByteArrayToBase64TypeAdapter;
 import io.github.textrecognisionsample.util.GetWeather;
 import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
@@ -81,6 +77,8 @@ public class Home extends AppCompatActivity {
     private Handler update = new Handler();
     private Runnable runnable;
 
+    private Gson gson;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,18 +98,18 @@ public class Home extends AppCompatActivity {
 
         GetWeather weather = new GetWeather(API_Key, latitude, longitude);
 
+        ImageButton avatarButton = findViewById(R.id.avatarButton);
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer())
+                .registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
+        gson = gsonBuilder.create();
+
         AsyncTask.execute(() -> {
-
-            GsonBuilder builder = new GsonBuilder()
-                    .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer());
-
-            Gson gson = builder.create();
-
             userDatabase = UserDatabase.getInstance(this);
             List<UserData> userData = userDatabase.userDao().getAll();
 
             if (userData.size() > 0) {
-                System.out.println(userData.get(0).getData());
                 WebUser webUser = gson.fromJson(userData.get(0).getData(), WebUser.class);
 
                 if (webUser == null) {
@@ -121,6 +119,20 @@ public class Home extends AppCompatActivity {
                 }
 
                 Util.getWebUser().updateUser(webUser);
+
+                runOnUiThread(() -> {
+                    if (Util.getWebUser().data != null) {
+                        avatarButton.setImageBitmap(BitmapFactory.decodeByteArray(
+                                Util.getWebUser().data,
+                                0,
+                                Util.getWebUser().data.length)
+                        );
+                        avatarButton.invalidate();
+                    } else {
+                        avatarButton.setImageResource(R.drawable.ic_baseline_account_circle_24);
+                    }
+                });
+
             } else {
                 UserDatabase.getInstance(this).userDao().insert(new UserData(""));
             }
@@ -145,6 +157,19 @@ public class Home extends AppCompatActivity {
                             dao.insertAll(Coupon.of(coupon));
                         }
                     }
+
+                    runOnUiThread(() -> {
+                        if (Util.getWebUser().data != null) {
+                            avatarButton.setImageBitmap(BitmapFactory.decodeByteArray(
+                                    Util.getWebUser().data,
+                                    0,
+                                    Util.getWebUser().data.length)
+                            );
+                            avatarButton.invalidate();
+                        } else {
+                            avatarButton.setImageResource(R.drawable.ic_baseline_account_circle_24);
+                        }
+                    });
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -167,8 +192,6 @@ public class Home extends AppCompatActivity {
             }
         });
 
-
-        ImageButton avatarButton = findViewById(R.id.avatarButton);
 
         avatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -344,9 +367,6 @@ public class Home extends AppCompatActivity {
                     onAddButtonClicked();
                     onAddButtonClicked();
 
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-
                     SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
                     Date date = new Date(System.currentTimeMillis());
 
@@ -394,9 +414,6 @@ public class Home extends AppCompatActivity {
                 if (floatingMenuClicked) {
                     onAddButtonClicked();
                 }
-
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
 
                 Intent intent = new Intent(Home.this, ShowCoupon.class);
                 intent.putExtra("coupon", gson.toJson(coupons.get(position)));
@@ -477,8 +494,6 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
         couponDatabase = CouponDatabase.getInstance(this);
 
         if (resultCode == RESULT_OK) {

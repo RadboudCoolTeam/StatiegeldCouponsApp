@@ -17,6 +17,7 @@ public class WebUserJsonSerializer implements JsonSerializer<WebUser> {
         object.add("email", context.serialize(src.email));
         object.add("password", context.serialize(src.password));
         object.add("passwordHash", context.serialize(src.passwordHash));
+        object.add("data", context.serialize(src.data));
 
         return object;
     }

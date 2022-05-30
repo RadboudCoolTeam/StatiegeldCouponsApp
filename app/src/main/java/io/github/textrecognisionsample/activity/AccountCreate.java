@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,14 +20,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import io.github.textrecognisionsample.R;
-import io.github.textrecognisionsample.model.web.WebImage;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
 
 public class AccountCreate extends AppCompatActivity {
 
-    private WebImage image = null;
+    private byte[] imageData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +52,11 @@ public class AccountCreate extends AppCompatActivity {
         avatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"),
+                        Result.AVATAR_IMAGE_PICK);
             }
         });
 
@@ -65,10 +67,10 @@ public class AccountCreate extends AppCompatActivity {
             public void onClick(View view) {
                 AsyncTask.execute(() -> {
                     try {
-                        WebUser user = new WebUser(email.getText().toString(), password.getText().toString());
+                        WebUser user = new WebUser(email.getText().toString(), password.getText().toString(), imageData);
                         user.name = name.getText().toString();
 
-                        String id = Util.createAccount(user, image, view.getContext());
+                        String id = Util.createAccount(user, view.getContext());
 
                         if (id != null) {
 
@@ -109,14 +111,16 @@ public class AccountCreate extends AppCompatActivity {
                 try {
                     Uri currentUri = data.getData();
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currentUri);
-                    image.setWidth(bitmap.getWidth());
-                    image.setHeight(bitmap.getHeight());
+
 
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                    byte[] bytes = outputStream.toByteArray();
+                    imageData = outputStream.toByteArray();
 
-                    image.setData(bytes);
+                    ImageButton avatar = findViewById(R.id.createAccountAvatar);
+
+                    avatar.setImageBitmap(bitmap);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
