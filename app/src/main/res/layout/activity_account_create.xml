@@ -54,8 +54,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/accountCreatePassword"
-        app:layout_constraintVertical_bias="0.057"
-        app:gravity = "center"/>
+        app:layout_constraintVertical_bias="0.057"/>
 
     <EditText
         android:id="@+id/accountCreateName"
