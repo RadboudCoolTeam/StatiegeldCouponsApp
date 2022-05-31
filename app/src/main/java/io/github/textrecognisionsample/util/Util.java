@@ -47,7 +47,7 @@ public class Util {
 
     private static boolean isLoggedIn = false;
 
-    public static final int MAX_SCALE = 110;
+    public static final int MAX_SCALE = 150;
 
     public static Properties getProperties(Context context) {
         if (properties == null) {
@@ -73,13 +73,22 @@ public class Util {
     }
 
     public static Bitmap resizeBitmap(Bitmap bitmap, int scale) {
+        double ratio;
         if (bitmap.getWidth() >= bitmap.getHeight()) {
-            double ratio = (double) Util.MAX_SCALE / bitmap.getWidth();
+            if (Util.MAX_SCALE < bitmap.getWidth()) {
+                ratio = (double) Util.MAX_SCALE / bitmap.getWidth();
+            } else {
+                ratio = (double) bitmap.getWidth() / Util.MAX_SCALE;
+            }
             double newHeight = bitmap.getHeight() * ratio;
 
             bitmap = Bitmap.createScaledBitmap(bitmap, Util.MAX_SCALE, (int) newHeight, false);
         } else {
-            double ratio = (double) Util.MAX_SCALE / bitmap.getHeight();
+            if (Util.MAX_SCALE < bitmap.getHeight()) {
+                ratio = (double) Util.MAX_SCALE / bitmap.getHeight();
+            } else {
+                ratio = (double) bitmap.getHeight() / Util.MAX_SCALE;
+            }
             double newWidth = bitmap.getWidth() * ratio;
 
             bitmap = Bitmap.createScaledBitmap(bitmap, (int) newWidth, Util.MAX_SCALE, false);
