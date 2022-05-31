@@ -75,20 +75,14 @@ public class Util {
     public static Bitmap resizeBitmap(Bitmap bitmap, int scale) {
         double ratio;
         if (bitmap.getWidth() >= bitmap.getHeight()) {
-            if (Util.MAX_SCALE < bitmap.getWidth()) {
-                ratio = (double) Util.MAX_SCALE / bitmap.getWidth();
-            } else {
-                ratio = (double) bitmap.getWidth() / Util.MAX_SCALE;
-            }
+            ratio = (double) Util.MAX_SCALE / bitmap.getWidth();
+
             double newHeight = bitmap.getHeight() * ratio;
 
             bitmap = Bitmap.createScaledBitmap(bitmap, Util.MAX_SCALE, (int) newHeight, false);
         } else {
-            if (Util.MAX_SCALE < bitmap.getHeight()) {
-                ratio = (double) Util.MAX_SCALE / bitmap.getHeight();
-            } else {
-                ratio = (double) bitmap.getHeight() / Util.MAX_SCALE;
-            }
+            ratio = (double) Util.MAX_SCALE / bitmap.getHeight();
+
             double newWidth = bitmap.getWidth() * ratio;
 
             bitmap = Bitmap.createScaledBitmap(bitmap, (int) newWidth, Util.MAX_SCALE, false);

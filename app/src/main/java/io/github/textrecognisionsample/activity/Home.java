@@ -172,10 +172,14 @@ public class Home extends AppCompatActivity {
 
                     runOnUiThread(() -> {
                         if (Util.getWebUser().data != null) {
-                            avatarButton.setImageBitmap(BitmapFactory.decodeByteArray(
-                                    Util.getWebUser().data,
-                                    0,
-                                    Util.getWebUser().data.length)
+                            avatarButton.setImageBitmap(
+                                    Util.resizeBitmap(
+                                            BitmapFactory.decodeByteArray(
+                                                    Util.getWebUser().data,
+                                                    0,
+                                                    Util.getWebUser().data.length),
+                                            Util.MAX_SCALE
+                                    )
                             );
                             avatarButton.invalidate();
                         }
