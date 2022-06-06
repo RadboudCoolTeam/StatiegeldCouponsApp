@@ -88,7 +88,7 @@ public class Home extends AppCompatActivity {
 
     private Gson gson;
 
-    private final Properties properties = Util.getProperties(getApplicationContext());
+    private Properties properties;
 
     private CircleImageView avatarButton;
 
@@ -100,9 +100,12 @@ public class Home extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+        properties =  Util.getProperties(getApplicationContext());
 
         loadAnimation();
 
@@ -183,7 +186,7 @@ public class Home extends AppCompatActivity {
 
                 runOnUiThread(() -> {
                     TextView temp = findViewById(R.id.temperature);
-                    temp.setText(String.format(".2f°C", x));
+                    temp.setText(String.format("%,.0f°C", x));
                 });
 
             } catch (IOException e) {
