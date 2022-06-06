@@ -47,7 +47,7 @@ public class Util {
 
     private static boolean isLoggedIn = false;
 
-    public static final int MAX_SCALE = 150;
+    public static final int MAX_SCALE = 105;
 
     public static Properties getProperties(Context context) {
         if (properties == null) {

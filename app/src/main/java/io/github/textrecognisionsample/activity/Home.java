@@ -1,11 +1,18 @@
 package io.github.textrecognisionsample.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.icu.text.DecimalFormat;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,10 +24,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -56,10 +65,12 @@ import io.github.textrecognisionsample.model.web.WebCoupon;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
 import io.github.textrecognisionsample.util.ByteArrayToBase64TypeAdapter;
+import io.github.textrecognisionsample.util.GetLocation;
 import io.github.textrecognisionsample.util.GetWeather;
 import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class Home extends AppCompatActivity {
 
     private ArrayList<Coupon> coupons = new ArrayList<>();
@@ -70,6 +81,7 @@ public class Home extends AppCompatActivity {
     private GridRecyclerViewAdapter adapter;
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+
 
     private boolean floatingMenuClicked = false;
 
@@ -97,10 +109,15 @@ public class Home extends AppCompatActivity {
 
         Properties properties = Util.getProperties(getApplicationContext());
         String API_Key = properties.getProperty("weather_api_key");
-        String latitude = properties.getProperty("latitude");
-        String longitude = properties.getProperty("longitude");
 
-        GetWeather weather = new GetWeather(API_Key, latitude, longitude);
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = lm.getBestProvider(criteria, true);
+
+        GetLocation loc = new GetLocation(lm, this, provider);
+
+        String[] location = loc.getLoc();
+
 
         CircleImageView avatarButton = findViewById(R.id.avatarButton);
 
@@ -200,9 +217,22 @@ public class Home extends AppCompatActivity {
 
         AsyncTask.execute(() -> {
             try {
+
+                String latitude = location[0];
+                String longitude = location[1];
+
+                GetWeather weather = new GetWeather(API_Key, latitude, longitude);
                 String result = weather.getWeather();
+
+                double x = Double.parseDouble(result) - 273;
+
+
+                weatherView.setText(String.valueOf(Math.round(x)));
+
             } catch (IOException e) {
+
                 e.printStackTrace();
+
             }
         });
 
