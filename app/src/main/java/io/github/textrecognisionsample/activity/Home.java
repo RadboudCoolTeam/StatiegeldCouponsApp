@@ -6,27 +6,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.icu.text.DecimalFormat;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -65,7 +61,6 @@ import io.github.textrecognisionsample.model.web.WebCoupon;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
 import io.github.textrecognisionsample.util.ByteArrayToBase64TypeAdapter;
-import io.github.textrecognisionsample.util.GetLocation;
 import io.github.textrecognisionsample.util.GetWeather;
 import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
@@ -74,7 +69,7 @@ import io.github.textrecognisionsample.util.Util;
 public class Home extends AppCompatActivity {
 
     public static final double ABSOLUTE_ZERO = 273.0;
-    private ArrayList<Coupon> coupons = new ArrayList<>();
+    private final ArrayList<Coupon> coupons = new ArrayList<>();
     private CouponDatabase couponDatabase;
     private StatisticsDatabase statisticsDatabase;
     private UserDatabase userDatabase;
@@ -91,36 +86,117 @@ public class Home extends AppCompatActivity {
     private Animation fromBottom;
     private Animation toBottom;
 
-    private Handler update = new Handler();
-    private Runnable runnable;
-
     private Gson gson;
+
+    private final Properties properties = Util.getProperties(getApplicationContext());
+
+    private CircleImageView avatarButton;
+
+    private final String[] REQUIRED_LOCATION_PERMISSIONS = new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
+        loadAnimation();
+
+        // Weather feature:
+
+        setupWeather();
+
+        // Sync:
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer())
+                .registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
+        gson = gsonBuilder.create();
+
+        loadAppStateFromLocalDb();
+
+        syncWithWebDatabase();
+
+        // App components :
+
+        setupAvatar();
+
+        setupCouponsFilters();
+
+        setupCouponAddButtons();
+
+        setupCouponsList();
+    }
+
+    public String[] getLoc(LocationManager lm, String provider){
+        String longitude = properties.getProperty("default_longitude");
+        String latitude = properties.getProperty("default_latitude");
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Location location = lm.getLastKnownLocation(provider);
+
+            if(location != null) {
+                longitude = String.valueOf(location.getLongitude());
+                latitude = String.valueOf(location.getLatitude());
+            } else {
+                lm.requestLocationUpdates(provider, 1000, 20,
+                        (LocationListener) this);
+            }
+
+        } else {
+            ActivityCompat.requestPermissions(this, REQUIRED_LOCATION_PERMISSIONS,
+                    Result.REQUEST_LOCATION_PERMISSION);
+        }
+
+        return new String[]{latitude, longitude};
+    }
+
+    private void loadAnimation() {
         rotateOpen = AnimationUtils.loadAnimation(this, R.anim.rotate_open);
         rotateClose = AnimationUtils.loadAnimation(this, R.anim.rotate_close);
         fromBottom = AnimationUtils.loadAnimation(this, R.anim.from_bottom);
         toBottom = AnimationUtils.loadAnimation(this, R.anim.to_bottom);
+    }
 
-        Properties properties = Util.getProperties(getApplicationContext());
-        String API_Key = properties.getProperty("weather_api_key");
-
+    private void setupWeather() {
+        String apiKey = properties.getProperty("weather_api_key");
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = lm.getBestProvider(criteria, true);
+        String[] location = getLoc(lm, provider);
 
-        GetLocation loc = new GetLocation(lm, this, provider);
+        AsyncTask.execute(() -> {
+            try {
+                String latitude = location[0];
+                String longitude = location[1];
 
-        String[] location = loc.getLoc();
+                GetWeather weather = new GetWeather(apiKey, latitude, longitude);
+                String result = weather.getWeather();
 
+                double x = Double.parseDouble(result) - ABSOLUTE_ZERO;
 
-        CircleImageView avatarButton = findViewById(R.id.avatarButton);
+                runOnUiThread(() -> {
+                    TextView temp = findViewById(R.id.temperature);
+                    temp.setText(String.format(".2f°C", x));
+                });
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+
+            }
+        });
+    }
+
+    @SuppressLint({"UseCompatLoadingForDrawables", "NonConstantResourceId"})
+    private void setupAvatar() {
+        avatarButton = findViewById(R.id.avatarButton);
 
         avatarButton.setImageBitmap(
                 Util.resizeBitmap(
@@ -129,11 +205,51 @@ public class Home extends AppCompatActivity {
                         Util.MAX_SCALE)
         );
 
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer())
-                .registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
-        gson = gsonBuilder.create();
+        avatarButton.setOnClickListener(view -> {
+            PopupMenu popupMenu = new PopupMenu(Home.this, avatarButton);
+            popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
 
+            popupMenu.setOnMenuItemClickListener(menuItem -> {
+                switch (menuItem.getItemId()) {
+                    case R.id.option_account: {
+                        if (Util.isIsLoggedIn()) {
+                            Intent intent = new Intent(Home.this, Account.class);
+                            startActivity(intent);
+                        } else {
+                            AsyncTask.execute(() -> {
+                                try {
+                                    WebUser userFromApi = Util.authUser(Util.getWebUser(), getApplicationContext());
+                                    if (userFromApi != null) {
+                                        Util.getWebUser().updateUser(userFromApi);
+                                        Util.setIsLoggedIn(true);
+
+                                        Intent intent = new Intent(Home.this, Account.class);
+                                        startActivity(intent);
+                                    } else {
+                                        Intent intent = new Intent(Home.this, AccountLogin.class);
+                                        startActivityForResult(intent, Result.LOG_IN);
+                                    }
+                                } catch (IOException e1) {
+                                    e1.printStackTrace();
+                                }
+                            });
+                        }
+                    }
+
+                    break;
+                    case R.id.option_settings:
+                        break;
+                }
+
+                return true;
+            });
+
+            popupMenu.show();
+
+        });
+    }
+
+    private void loadAppStateFromLocalDb() {
         AsyncTask.execute(() -> {
             userDatabase = UserDatabase.getInstance(this);
             List<UserData> userData = userDatabase.userDao().getAll();
@@ -168,6 +284,11 @@ public class Home extends AppCompatActivity {
             }
         });
 
+        AsyncTask.execute(() -> statisticsDatabase = StatisticsDatabase.getInstance(this));
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void syncWithWebDatabase() {
         AsyncTask.execute(() -> {
             couponDatabase = CouponDatabase.getInstance(this);
             CouponDao dao = couponDatabase.couponDao();
@@ -211,86 +332,16 @@ public class Home extends AppCompatActivity {
             coupons.addAll(dbCoupons);
             runOnUiThread(() -> adapter.notifyDataSetChanged());
         });
+    }
 
-        AsyncTask.execute(() -> {
-            statisticsDatabase = StatisticsDatabase.getInstance(this);
-        });
-
-        AsyncTask.execute(() -> {
-            try {
-
-                String latitude = location[0];
-                String longitude = location[1];
-
-                GetWeather weather = new GetWeather(API_Key, latitude, longitude);
-                String result = weather.getWeather();
-              //  System.out.println("Result is " + result);
-
-                double x = Double.parseDouble(result) - ABSOLUTE_ZERO;
-
-            } catch (IOException e) {
-
-                e.printStackTrace();
-
-            }
-        });
-
-
-        avatarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopupMenu popupMenu = new PopupMenu(Home.this, avatarButton);
-                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
-
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        switch (menuItem.getItemId()) {
-                            case R.id.option_account: {
-                                if (Util.isIsLoggedIn()) {
-                                    Intent intent = new Intent(Home.this, Account.class);
-                                    startActivity(intent);
-                                } else {
-                                    AsyncTask.execute(() -> {
-                                        try {
-                                            WebUser userFromApi = Util.authUser(Util.getWebUser(), getApplicationContext());
-                                            if (userFromApi != null) {
-                                                Util.getWebUser().updateUser(userFromApi);
-                                                Util.setIsLoggedIn(true);
-
-                                                Intent intent = new Intent(Home.this, Account.class);
-                                                startActivity(intent);
-                                            } else {
-                                                Intent intent = new Intent(Home.this, AccountLogin.class);
-                                                startActivityForResult(intent, Result.LOG_IN);
-                                            }
-                                        } catch (IOException e1) {
-                                            e1.printStackTrace();
-                                        }
-                                    });
-                                }
-                            }
-
-                            break;
-                            case R.id.option_settings:
-                                break;
-                        }
-
-                        return true;
-                    }
-                });
-
-                popupMenu.show();
-
-            }
-        });
-
-
+    @SuppressLint("NotifyDataSetChanged")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupCouponsFilters() {
         ChipGroup group = findViewById(R.id.chips_list);
         ArrayList<Chip> chips = new ArrayList<>();
 
         Chip chip = new Chip(group.getContext());
-        chip.setText("All");
+        chip.setText(R.string.chip_all);
         ChipDrawable chipDrawable = ChipDrawable.createFromAttributes(this,
                 null,
                 0,
@@ -315,213 +366,191 @@ public class Home extends AppCompatActivity {
             chips.add(chip);
         }
 
-        chips.get(0).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                coupons.clear();
-                AsyncTask.execute(() -> {
-                    couponDatabase = CouponDatabase.getInstance(Home.this);
-                    CouponDao dao = couponDatabase.couponDao();
-                    List<Coupon> dbCoupons = dao.getAll();
-                    coupons.addAll(dbCoupons);
-                    runOnUiThread(() -> adapter.notifyDataSetChanged());
-                });
+        chips.get(0).setOnClickListener(view -> {
+            coupons.clear();
+            AsyncTask.execute(() -> {
+                couponDatabase = CouponDatabase.getInstance(Home.this);
+                CouponDao dao = couponDatabase.couponDao();
+                List<Coupon> dbCoupons = dao.getAll();
+                coupons.addAll(dbCoupons);
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
+            });
 
-                for (int i = 1; i < chips.size(); i++) {
-                    chips.get(i).setChecked(false);
-                }
-
-                chips.get(0).setChecked(true);
+            for (int i = 1; i < chips.size(); i++) {
+                chips.get(i).setChecked(false);
             }
+
+            chips.get(0).setChecked(true);
         });
 
         for (int i = 1; i < chips.size(); i++) {
-            chips.get(i).setOnClickListener(new View.OnClickListener() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void onClick(View view) {
+            chips.get(i).setOnClickListener(view -> {
 
-                    int count = 0;
-                    for (int i = 1; i < chips.size(); i++) {
-                        if (chips.get(i).isChecked()) {
-                            count++;
-                        }
+                int count = 0;
+                for (int i1 = 1; i1 < chips.size(); i1++) {
+                    if (chips.get(i1).isChecked()) {
+                        count++;
+                    }
+                }
+
+                coupons.clear();
+                if (count == 0) {
+                    AsyncTask.execute(() -> {
+                        couponDatabase = CouponDatabase.getInstance(Home.this);
+                        CouponDao dao = couponDatabase.couponDao();
+                        List<Coupon> dbCoupons = dao.getAll();
+                        coupons.addAll(dbCoupons);
+                        runOnUiThread(() -> adapter.notifyDataSetChanged());
+                    });
+
+                    for (int i1 = 1; i1 < chips.size(); i1++) {
+                        chips.get(i1).setChecked(false);
                     }
 
-                    coupons.clear();
-                    if (count == 0) {
-                        AsyncTask.execute(() -> {
-                            couponDatabase = CouponDatabase.getInstance(Home.this);
-                            CouponDao dao = couponDatabase.couponDao();
-                            List<Coupon> dbCoupons = dao.getAll();
-                            coupons.addAll(dbCoupons);
-                            runOnUiThread(() -> adapter.notifyDataSetChanged());
-                        });
+                    chips.get(0).setChecked(true);
+                } else {
+                    AsyncTask.execute(() -> {
+                        couponDatabase = CouponDatabase.getInstance(Home.this);
+                        CouponDao dao = couponDatabase.couponDao();
 
-                        for (int i = 1; i < chips.size(); i++) {
-                            chips.get(i).setChecked(false);
-                        }
-
-                        chips.get(0).setChecked(true);
-                    } else {
-                        AsyncTask.execute(() -> {
-                            couponDatabase = CouponDatabase.getInstance(Home.this);
-                            CouponDao dao = couponDatabase.couponDao();
-
-                            for (int i = 1; i < chips.size(); i++) {
-                                if (chips.get(i).isChecked()) {
-                                    List<Coupon> dbCoupons = dao.findBySupermarketChain(
-                                            SupermarketChain.getByFriendlyName(
-                                                    chips.get(i).getText().toString()
-                                            ).name()
-                                    );
-                                    coupons.addAll(dbCoupons);
-                                }
+                        for (int i1 = 1; i1 < chips.size(); i1++) {
+                            if (chips.get(i1).isChecked()) {
+                                List<Coupon> dbCoupons = dao.findBySupermarketChain(
+                                        SupermarketChain.getByFriendlyName(
+                                                chips.get(i1).getText().toString()
+                                        ).name()
+                                );
+                                coupons.addAll(dbCoupons);
                             }
+                        }
 
-                            runOnUiThread(() -> adapter.notifyDataSetChanged());
-                        });
-                        chips.get(0).setChecked(false);
-                    }
+                        runOnUiThread(() -> adapter.notifyDataSetChanged());
+                    });
+                    chips.get(0).setChecked(false);
                 }
             });
         }
+    }
 
-
+    private void setupCouponAddButtons() {
         FloatingActionButton fab = findViewById(R.id.edit_fab);
 
         fab.setImageResource(R.drawable.ic_baseline_add_24);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onAddButtonClicked();
-            }
-        });
+        fab.setOnClickListener(view -> onAddButtonClicked());
 
         FloatingActionButton addManually = findViewById(R.id.add_manually);
 
-        addManually.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (floatingMenuClicked) {
+        addManually.setOnClickListener(view -> {
+            if (floatingMenuClicked) {
 
-                    onAddButtonClicked();
-                    onAddButtonClicked();
+                onAddButtonClicked();
+                onAddButtonClicked();
 
-                    SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-                    Date date = new Date(System.currentTimeMillis());
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+                Date date = new Date(System.currentTimeMillis());
 
-                    Coupon coupon = new Coupon(
-                            formatter.format(date),
-                            "",
-                            "",
-                            SupermarketChain.UNKNOWN
-                    );
+                Coupon coupon = new Coupon(
+                        formatter.format(date),
+                        "",
+                        "",
+                        SupermarketChain.UNKNOWN
+                );
 
-                    Intent intent = new Intent(Home.this, EditCoupon.class);
+                Intent intent = new Intent(Home.this, EditCoupon.class);
 
-                    intent.putExtra("coupon", gson.toJson(coupon, Coupon.class));
-                    intent.putExtra("isEdit", false);
+                intent.putExtra("coupon", gson.toJson(coupon, Coupon.class));
+                intent.putExtra("isEdit", false);
 
-                    startActivityForResult(intent, Result.COUPON_CREATED);
-                }
+                startActivityForResult(intent, Result.COUPON_CREATED);
             }
         });
 
         FloatingActionButton addTakePhoto = findViewById(R.id.add_take_photo);
 
-        addTakePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (floatingMenuClicked) {
+        addTakePhoto.setOnClickListener(v -> {
+            if (floatingMenuClicked) {
 
-                    onAddButtonClicked();
+                onAddButtonClicked();
 
-                    Intent intent = new Intent(Home.this, CameraX.class);
-                    startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
-                }
+                Intent intent = new Intent(Home.this, CameraX.class);
+                startActivityForResult(intent, Result.TAKE_PICTURE_CODE);
             }
         });
+    }
 
+    @SuppressLint({"NotifyDataSetChanged", "UseCompatLoadingForDrawables"})
+    private void setupCouponsList() {
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         adapter = new GridRecyclerViewAdapter(this, coupons);
 
-        adapter.setClickListener(new GridRecyclerViewAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
+        adapter.setClickListener((view, position) -> {
 
-                if (floatingMenuClicked) {
-                    onAddButtonClicked();
-                }
-
-                Intent intent = new Intent(Home.this, ShowCoupon.class);
-                intent.putExtra("coupon", gson.toJson(coupons.get(position)));
-                startActivityForResult(intent, Result.VIEW_COUPON);
+            if (floatingMenuClicked) {
+                onAddButtonClicked();
             }
+
+            Intent intent = new Intent(Home.this, ShowCoupon.class);
+            intent.putExtra("coupon", gson.toJson(coupons.get(position)));
+            startActivityForResult(intent, Result.VIEW_COUPON);
         });
 
         recyclerView.setAdapter(adapter);
 
         SwipeRefreshLayout swipeRefreshContainer = findViewById(R.id.swipe);
-        swipeRefreshContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                AsyncTask.execute(() -> {
-                    if (Util.isIsLoggedIn()) {
-                        try {
-                            Util.syncDatabases(getApplicationContext());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+        swipeRefreshContainer.setOnRefreshListener(() -> AsyncTask.execute(() -> {
+            if (Util.isIsLoggedIn()) {
+                try {
+                    Util.syncDatabases(getApplicationContext());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                        List<Coupon> dbCoupons = couponDatabase.couponDao().getAll();
-                        for (Coupon coupon : dbCoupons) {
-                            if (coupons.stream().noneMatch(e -> coupon.getUid().equals(e.getUid()))) {
-                                coupons.add(coupon);
-                            }
-                        }
+                List<Coupon> dbCoupons = couponDatabase.couponDao().getAll();
+                for (Coupon coupon : dbCoupons) {
+                    if (coupons.stream().noneMatch(e -> coupon.getUid().equals(e.getUid()))) {
+                        coupons.add(coupon);
+                    }
+                }
 
-                        runOnUiThread(() -> {
-                            adapter.notifyDataSetChanged();
-                            swipeRefreshContainer.setRefreshing(false);
+                runOnUiThread(() -> {
+                    adapter.notifyDataSetChanged();
+                    swipeRefreshContainer.setRefreshing(false);
 
-                            if (Util.getWebUser().data != null) {
-                                avatarButton.setImageBitmap(
-                                        Util.resizeBitmap(
-                                                BitmapFactory.decodeByteArray(
-                                                        Util.getWebUser().data,
-                                                        0,
-                                                        Util.getWebUser().data.length),
-                                                Util.MAX_SCALE)
-                                );
-                                avatarButton.invalidate();
-                            } else {
-                                avatarButton.setImageBitmap(
-                                        Util.resizeBitmap(
-                                                ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
-                                                        .getBitmap(),
-                                                Util.MAX_SCALE)
-                                );
-                            }
-                        });
+                    if (Util.getWebUser().data != null) {
+                        avatarButton.setImageBitmap(
+                                Util.resizeBitmap(
+                                        BitmapFactory.decodeByteArray(
+                                                Util.getWebUser().data,
+                                                0,
+                                                Util.getWebUser().data.length),
+                                        Util.MAX_SCALE)
+                        );
+                        avatarButton.invalidate();
                     } else {
-                        runOnUiThread(() -> {
-                            avatarButton.setImageBitmap(
-                                    Util.resizeBitmap(
-                                            ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
-                                                    .getBitmap(),
-                                            Util.MAX_SCALE)
-                            );
-                            Toast.makeText(getApplicationContext(), "You are not logged in!", Toast.LENGTH_SHORT).show();
-                            swipeRefreshContainer.setRefreshing(false);
-                        });
+                        avatarButton.setImageBitmap(
+                                Util.resizeBitmap(
+                                        ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
+                                                .getBitmap(),
+                                        Util.MAX_SCALE)
+                        );
                     }
                 });
+            } else {
+                runOnUiThread(() -> {
+                    avatarButton.setImageBitmap(
+                            Util.resizeBitmap(
+                                    ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
+                                            .getBitmap(),
+                                    Util.MAX_SCALE)
+                    );
+                    Toast.makeText(getApplicationContext(), "You are not logged in!", Toast.LENGTH_SHORT).show();
+                    swipeRefreshContainer.setRefreshing(false);
+                });
             }
-        });
+        }));
     }
 
     private void onAddButtonClicked() {
@@ -557,7 +586,14 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == Result.REQUEST_LOCATION_PERMISSION) {
+            setupWeather();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -647,7 +683,7 @@ public class Home extends AppCompatActivity {
                 String shop = data.getStringExtra("shop");
                 String price = data.getStringExtra("shop_price");
 
-                SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
                 Date date = new Date(System.currentTimeMillis());
 
                 List<String> values = Arrays.stream(SupermarketChain.values()).map(SupermarketChain::name).collect(Collectors.toList());

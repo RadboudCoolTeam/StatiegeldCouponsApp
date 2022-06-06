@@ -12,4 +12,5 @@ public class Result {
     public static final int LOGGED_IN = 9;
     public static final int NEW_ACCOUNT = 10;
     public static final int AVATAR_IMAGE_PICK = 11;
+    public static final int REQUEST_LOCATION_PERMISSION = 12;
 }
