@@ -103,7 +103,7 @@ public class Home extends AppCompatActivity implements LocationListener {
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -207,7 +207,8 @@ public class Home extends AppCompatActivity implements LocationListener {
         });
     }
 
-    @SuppressLint({"UseCompatLoadingForDrawables", "NonConstantResourceId"})
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @SuppressLint({"UseCompatLoadingForDrawables", "NonConstantResourceId", "RestrictedApi"})
     private void setupAvatar() {
         avatarButton = findViewById(R.id.avatarButton);
 
@@ -221,6 +222,8 @@ public class Home extends AppCompatActivity implements LocationListener {
         avatarButton.setOnClickListener(view -> {
             PopupMenu popupMenu = new PopupMenu(Home.this, avatarButton);
             popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+
+            popupMenu.setForceShowIcon(true);
 
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 switch (menuItem.getItemId()) {
