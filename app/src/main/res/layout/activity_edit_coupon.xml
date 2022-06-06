@@ -47,7 +47,7 @@
 
     <LinearLayout
         android:layout_width="415dp"
-        android:layout_height="229dp"
+        android:layout_height="250dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,25 +66,27 @@
 
             <TextView
                 android:id="@+id/textView7"
-                android:layout_width="207dp"
+                android:layout_width="69dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginStart="20dp"
+                android:layout_weight="1"
                 android:text="Supermarket"
                 android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/editSelectChain"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                app:endIconMode="dropdown_menu"
                 android:layout_width="199dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
 
                 <AutoCompleteTextView
                     android:id="@+id/editSelectChainText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="240dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
                     android:inputType="none" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -110,14 +112,22 @@
                 android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <EditText
-                android:id="@+id/editMoney"
-                android:layout_width="62dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="Enter money value"
-                android:inputType="textPersonName" />
+                app:endIconMode="clear_text"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editMoney"
+                    android:layout_width="240dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Money value"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
         <Space
@@ -138,14 +148,22 @@
                 android:text="Barcode"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <EditText
-                android:id="@+id/editBarcode"
-                android:layout_width="60dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="Enter barcode data"
-                android:inputType="textPersonName" />
+                app:endIconMode="clear_text"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editBarcode"
+                    android:layout_width="240dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Barcode data"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </LinearLayout>
 
