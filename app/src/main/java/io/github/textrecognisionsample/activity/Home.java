@@ -39,6 +39,9 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -66,7 +69,7 @@ import io.github.textrecognisionsample.util.Result;
 import io.github.textrecognisionsample.util.Util;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements LocationListener {
 
     public static final double ABSOLUTE_ZERO = 273.0;
     private final ArrayList<Coupon> coupons = new ArrayList<>();
@@ -78,8 +81,11 @@ public class Home extends AppCompatActivity {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
-
     private boolean floatingMenuClicked = false;
+
+    private LocalDateTime lastTimeUpdated;
+
+    private TemporalAmount refreshDuration;
 
     private Animation rotateOpen;
     private Animation rotateClose;
@@ -106,6 +112,10 @@ public class Home extends AppCompatActivity {
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         properties =  Util.getProperties(getApplicationContext());
+
+        lastTimeUpdated = LocalDateTime.now();
+
+        refreshDuration = Duration.ofHours(1);
 
         loadAnimation();
 
@@ -737,6 +747,15 @@ public class Home extends AppCompatActivity {
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        if (LocalDateTime.now().isAfter(lastTimeUpdated.plus(refreshDuration))) {
+            setupWeather();
+            lastTimeUpdated = LocalDateTime.now();
         }
     }
 }
