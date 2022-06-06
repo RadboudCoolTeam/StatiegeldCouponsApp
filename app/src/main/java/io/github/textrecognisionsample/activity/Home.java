@@ -73,6 +73,7 @@ import io.github.textrecognisionsample.util.Util;
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class Home extends AppCompatActivity {
 
+    public static final double ABSOLUTE_ZERO = 273.0;
     private ArrayList<Coupon> coupons = new ArrayList<>();
     private CouponDatabase couponDatabase;
     private StatisticsDatabase statisticsDatabase;
@@ -223,11 +224,9 @@ public class Home extends AppCompatActivity {
 
                 GetWeather weather = new GetWeather(API_Key, latitude, longitude);
                 String result = weather.getWeather();
+              //  System.out.println("Result is " + result);
 
-                double x = Double.parseDouble(result) - 273;
-
-
-                weatherView.setText(String.valueOf(Math.round(x)));
+                double x = Double.parseDouble(result) - ABSOLUTE_ZERO;
 
             } catch (IOException e) {
 
