@@ -348,7 +348,7 @@ public class Home extends AppCompatActivity {
         ChipDrawable chipDrawable = ChipDrawable.createFromAttributes(this,
                 null,
                 0,
-                com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice);
+                com.google.android.material.R.style.Widget_Material3_Chip_Filter);
         chipDrawable.setCheckable(true);
         chip.setChipDrawable(chipDrawable);
         chip.setChecked(true);
@@ -361,7 +361,7 @@ public class Home extends AppCompatActivity {
             chipDrawable = ChipDrawable.createFromAttributes(this,
                     null,
                     0,
-                    com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice);
+                    com.google.android.material.R.style.Widget_Material3_Chip_Filter);
             chipDrawable.setCheckable(true);
             chip.setChipDrawable(chipDrawable);
             chip.setRippleColorResource(chain.getColor());
