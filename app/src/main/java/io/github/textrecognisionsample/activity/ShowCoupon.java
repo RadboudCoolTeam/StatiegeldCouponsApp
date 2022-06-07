@@ -48,7 +48,7 @@ public class ShowCoupon extends AppCompatActivity {
 
         updateCouponUi(coupon);
 
-        MaterialToolbar materialToolbar = findViewById(R.id.camerax_bar);
+        MaterialToolbar materialToolbar = findViewById(R.id.show_bar);
         materialToolbar.setNavigationOnClickListener(view -> {
             Intent intent = new Intent();
             intent.putExtra("coupon", gson.toJson(coupon));
