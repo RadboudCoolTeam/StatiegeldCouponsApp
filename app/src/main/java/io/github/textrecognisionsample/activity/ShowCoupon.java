@@ -1,13 +1,11 @@
 package io.github.textrecognisionsample.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,13 +26,16 @@ public class ShowCoupon extends AppCompatActivity {
     private boolean edited = false;
     private Coupon coupon;
 
-    private final int BARCODE_WIDTH = 400;
-    private final int BARCODE_HEIGHT = 150;
+    private int BARCODE_WIDTH;
+    private int BARCODE_HEIGHT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_coupon);
+
+        BARCODE_WIDTH = Util.getResized(this, Util.MAX_SCALE_PERCENT_BARCODE);
+        BARCODE_HEIGHT = Util.getResized(this, 100 - Util.MAX_SCALE_PERCENT_BARCODE);
 
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();

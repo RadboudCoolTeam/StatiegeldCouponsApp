@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipDrawable;
@@ -123,6 +124,8 @@ public class Home extends AppCompatActivity implements LocationListener {
 
         loadAnimation();
 
+        setupTopBar();
+
         // Weather feature:
 
         setupWeather();
@@ -152,8 +155,13 @@ public class Home extends AppCompatActivity implements LocationListener {
     private void setupTopBar() {
         CardView view = findViewById(R.id.top_bar_image);
         ViewGroup.LayoutParams params = view.getLayoutParams();
-        int size = Util.getBarAvatarImageSize(Home.this);
-        params.height = size;
+        params.width = Util.getResized(this, Util.MAX_SCALE_PERCENT_BAR_WIDTH);
+
+        ViewGroup.MarginLayoutParams layoutParams =
+                (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        layoutParams.leftMargin = (Util.getResized(this, 100) - params.width)/2;
+
+        view.requestLayout();
     }
 
     private String[] getLoc(LocationManager lm, String provider){

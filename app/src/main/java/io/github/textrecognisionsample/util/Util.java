@@ -50,7 +50,10 @@ public class Util {
     private static boolean isLoggedIn = false;
 
     public static final int MAX_SCALE_PERCENT_BAR_AVATAR = 25;
+    public static final int MAX_SCALE_PERCENT_BAR_WIDTH = 90;
     public static final int MAX_SCALE_PERCENT_ACCOUNT = 40;
+    public static final int MAX_SCALE_PERCENT_BARCODE = 80;
+
 
     public static Properties getProperties(Context context) {
         if (properties == null) {
@@ -94,18 +97,19 @@ public class Util {
         return bitmap;
     }
 
-    public static int getBarAvatarImageSize(Activity activity) {
+    public static int getResized(Activity activity, double percentage) {
         Point size = ScreenUtil.getSize(activity);
         int width = size.x;
 
-        return (int) (width / 100.0 * Util.MAX_SCALE_PERCENT_BAR_AVATAR);
+        return (int) (width / 100.0 * percentage);
+    }
+
+    public static int getBarAvatarImageSize(Activity activity) {
+        return getResized(activity, Util.MAX_SCALE_PERCENT_BAR_AVATAR);
     }
 
     public static int getAccountAvatarImageSize(Activity activity) {
-        Point size = ScreenUtil.getSize(activity);
-        int width = size.x;
-
-        return (int) (width / 100.0 * Util.MAX_SCALE_PERCENT_ACCOUNT);
+        return getResized(activity, Util.MAX_SCALE_PERCENT_ACCOUNT);
     }
 
     public static String getDefaultUser(Context c) {
