@@ -16,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -33,20 +35,17 @@ public class AccountCreate extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_create);
 
-        ImageButton back = findViewById(R.id.accountCreateBack);
         ImageButton avatar = findViewById(R.id.createAccountAvatar);
 
         EditText email = findViewById(R.id.accountCreateEmail);
         EditText password = findViewById(R.id.accountCreatePassword);
         EditText name = findViewById(R.id.accountCreateName);
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AccountCreate.this, Home.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-            }
+        MaterialToolbar materialToolbar = findViewById(R.id.account_bar_create);
+        materialToolbar.setNavigationOnClickListener(view -> {
+            Intent intent = new Intent(AccountCreate.this, AccountLogin.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         });
 
         avatar.setOnClickListener(new View.OnClickListener() {

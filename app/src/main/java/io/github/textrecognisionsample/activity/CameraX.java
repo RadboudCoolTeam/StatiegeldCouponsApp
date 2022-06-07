@@ -2,6 +2,7 @@ package io.github.textrecognisionsample.activity;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
@@ -54,6 +56,13 @@ public class CameraX extends AppCompatActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_x);
+
+        MaterialToolbar materialToolbar = findViewById(R.id.camerax_bar);
+        materialToolbar.setNavigationOnClickListener(view -> {
+            Intent intent = new Intent(CameraX.this, Home.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
 
         bTakePicture = findViewById(R.id.image_capture_button);
         previewView = findViewById(R.id.viewFinder);

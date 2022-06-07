@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -32,6 +33,13 @@ public class EditCoupon extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_coupon);
+
+        MaterialToolbar materialToolbar = findViewById(R.id.edit_bar);
+        materialToolbar.setNavigationOnClickListener(view -> {
+            Intent intent = new Intent(EditCoupon.this, Home.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
 
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
@@ -92,17 +100,6 @@ public class EditCoupon extends AppCompatActivity {
                     setResult(RESULT_OK, intent);
                     finish();
                 }
-            }
-        });
-
-        ImageButton editBack = findViewById(R.id.editBack);
-        editBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("result", Result.COUPON_UNCHANGED);
-                setResult(RESULT_OK, intent);
-                finish();
             }
         });
 

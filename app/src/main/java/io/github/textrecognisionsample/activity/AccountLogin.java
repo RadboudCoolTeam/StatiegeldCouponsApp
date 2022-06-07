@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.content.AsyncTaskLoader;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -52,14 +53,11 @@ public class AccountLogin extends AppCompatActivity {
                 .registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
         Gson gson = gsonBuilder.create();
 
-        ImageButton back = findViewById(R.id.accountLoginBack);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AccountLogin.this, Home.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-            }
+        MaterialToolbar materialToolbar = findViewById(R.id.account_bar_login);
+        materialToolbar.setNavigationOnClickListener(view -> {
+            Intent intent = new Intent(AccountLogin.this, Home.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         });
 
         Button login = findViewById(R.id.accountLoginButton);

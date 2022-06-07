@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,7 +41,6 @@ public class ShowCoupon extends AppCompatActivity {
 
         coupon = gson.fromJson(getIntent().getExtras().getString("coupon"), Coupon.class);
 
-        ImageButton showBarcodeBack = findViewById(R.id.showBarcodeBack);
         FloatingActionButton showBarcodeEdit = findViewById(R.id.showBarcodeEdit);
         FloatingActionButton showBarcodeDelete = findViewById(R.id.showBarcodeDelete);
 
@@ -48,15 +48,13 @@ public class ShowCoupon extends AppCompatActivity {
 
         updateCouponUi(coupon);
 
-        showBarcodeBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("coupon", gson.toJson(coupon));
-                intent.putExtra("result", edited ? Result.COUPON_EDITED : Result.COUPON_UNCHANGED);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
+        MaterialToolbar materialToolbar = findViewById(R.id.camerax_bar);
+        materialToolbar.setNavigationOnClickListener(view -> {
+            Intent intent = new Intent();
+            intent.putExtra("coupon", gson.toJson(coupon));
+            intent.putExtra("result", edited ? Result.COUPON_EDITED : Result.COUPON_UNCHANGED);
+            setResult(RESULT_OK, intent);
+            finish();
         });
 
         showBarcodeEdit.setOnClickListener(new View.OnClickListener() {
