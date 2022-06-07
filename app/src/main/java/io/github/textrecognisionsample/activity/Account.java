@@ -1,23 +1,18 @@
 package io.github.textrecognisionsample.activity;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.content.AsyncTaskLoader;
-
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -25,15 +20,11 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.navigation.NavigationBarView;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.github.textrecognisionsample.R;
 import io.github.textrecognisionsample.model.SupermarketChain;
@@ -43,11 +34,7 @@ import io.github.textrecognisionsample.model.coupon.CouponDatabase;
 import io.github.textrecognisionsample.model.statistics.StatisticsDao;
 import io.github.textrecognisionsample.model.statistics.StatisticsData;
 import io.github.textrecognisionsample.model.statistics.StatisticsDatabase;
-import io.github.textrecognisionsample.model.user.UserDao;
-import io.github.textrecognisionsample.model.user.UserData;
 import io.github.textrecognisionsample.model.user.UserDatabase;
-import io.github.textrecognisionsample.model.web.WebUser;
-import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
 import io.github.textrecognisionsample.util.Util;
 
 public class Account extends AppCompatActivity {
@@ -69,8 +56,9 @@ public class Account extends AppCompatActivity {
         if (Util.getWebUser().data == null) {
             imageView.setImageResource(R.drawable.ic_baseline_account_circle_24);
         } else {
-            imageView.setImageBitmap(BitmapFactory.decodeByteArray(Util.getWebUser().data,
-                    0, Util.getWebUser().data.length));
+            imageView.setImageBitmap(Util.resizeBitmap(BitmapFactory.decodeByteArray(
+                    Util.getWebUser().data, 0,
+                    Util.getWebUser().data.length), Util.getAccountAvatarImageSize(this)));
         }
 
         TextView textView = findViewById(R.id.accountInfo);
@@ -78,18 +66,15 @@ public class Account extends AppCompatActivity {
 
         Button logout = findViewById(R.id.accountLogout);
 
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Util.setIsLoggedIn(false);
+        logout.setOnClickListener(view -> {
+            Util.setIsLoggedIn(false);
 
-                AsyncTask.execute(() -> UserDatabase.getInstance(getApplicationContext()).userDao().nukeTable());
+            AsyncTask.execute(() -> UserDatabase.getInstance(getApplicationContext()).userDao().nukeTable());
 
-                Util.getWebUser().reset();
+            Util.getWebUser().reset();
 
-                Intent intent = new Intent(Account.this, AccountLogin.class);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(Account.this, AccountLogin.class);
+            startActivity(intent);
         });
 
         AsyncTask.execute(() -> {
@@ -108,7 +93,8 @@ public class Account extends AppCompatActivity {
             for (Coupon coupon : coupons) {
                 if (values.containsKey(coupon.getSupermarketChain())) {
                     try {
-                        values.put(coupon.getSupermarketChain(), (float) (values.get(coupon.getSupermarketChain()) +
+                        values.put(coupon.getSupermarketChain(),
+                                (float) (values.get(coupon.getSupermarketChain()) +
                                                         Double.parseDouble(coupon.getMoney())));
                     } catch (NumberFormatException e) {
                         // ignored
@@ -121,7 +107,8 @@ public class Account extends AppCompatActivity {
 
             int i = 0;
             for (StatisticsData statisticsData : data) {
-                barEntries.add(new BarEntry((float) i, statisticsData.value.floatValue() + values.get(statisticsData.supermarketChain)));
+                barEntries.add(new BarEntry((float) i, statisticsData.value.floatValue() +
+                        values.get(statisticsData.supermarketChain)));
                 label.add(statisticsData.supermarketChain.getFriendlyName());
                 i++;
             }

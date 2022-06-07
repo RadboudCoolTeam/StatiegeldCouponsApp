@@ -37,6 +37,7 @@ import io.github.textrecognisionsample.util.ByteArrayToBase64TypeAdapter;
 import io.github.textrecognisionsample.util.Util;
 
 public class AccountLogin extends AppCompatActivity {
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,52 +63,43 @@ public class AccountLogin extends AppCompatActivity {
 
         Button login = findViewById(R.id.accountLoginButton);
 
-        login.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View view) {
+        login.setOnClickListener(view -> AsyncTask.execute(() -> {
+            try {
+                WebUser user = new WebUser(email.getText().toString(), password.getText().toString(), null);
 
-                AsyncTask.execute(() -> {
-                    try {
-                        WebUser user = new WebUser(email.getText().toString(), password.getText().toString(), null);
+                WebUser userFromApi = Util.authUser(user, view.getContext());
 
-                        WebUser userFromApi = Util.authUser(user, view.getContext());
+                if (userFromApi != null) {
 
-                        if (userFromApi != null) {
+                    Util.getWebUser().updateUser(userFromApi);
 
-                            Util.getWebUser().updateUser(userFromApi);
+                    runOnUiThread(() -> Toast.makeText(view.getContext(), "You are logged in: " + userFromApi.id,
+                            Toast.LENGTH_SHORT).show());
 
-                            runOnUiThread(() -> Toast.makeText(view.getContext(), "You are logged in: " + userFromApi.id,
-                                    Toast.LENGTH_SHORT).show());
+                    Util.setIsLoggedIn(true);
 
-                            Util.setIsLoggedIn(true);
+                    Util.syncDatabases(getApplicationContext());
 
-                            Util.syncDatabases(getApplicationContext());
+                    UserDao userDao = UserDatabase.getInstance(getApplicationContext()).userDao();
 
-                            UserDao userDao = UserDatabase.getInstance(getApplicationContext()).userDao();
-
-                            if (userDao.getAll().size() > 0) {
-                                userDao.nukeTable();
-                            }
-
-                            userDao.insert(new UserData(gson.toJson(userFromApi, WebUser.class)));
-
-                            Intent intent = new Intent(AccountLogin.this, Account.class);
-                            startActivity(intent);
-                        } else {
-
-                            runOnUiThread(() -> Toast.makeText(view.getContext(), "You are unable to log in :(",
-                                    Toast.LENGTH_SHORT).show());
-                        }
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if (userDao.getAll().size() > 0) {
+                        userDao.nukeTable();
                     }
-                });
 
+                    userDao.insert(new UserData(gson.toJson(userFromApi, WebUser.class)));
 
+                    Intent intent = new Intent(AccountLogin.this, Account.class);
+                    startActivity(intent);
+                } else {
+
+                    runOnUiThread(() -> Toast.makeText(view.getContext(), "You are unable to log in :(",
+                            Toast.LENGTH_SHORT).show());
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+        }));
 
         Button newAcc = findViewById(R.id.accountLoginCreateNew);
 

@@ -1,8 +1,10 @@
 package io.github.textrecognisionsample.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -47,7 +49,8 @@ public class Util {
 
     private static boolean isLoggedIn = false;
 
-    public static final int MAX_SCALE = 105;
+    public static final int MAX_SCALE_PERCENT_BAR_AVATAR = 25;
+    public static final int MAX_SCALE_PERCENT_ACCOUNT = 40;
 
     public static Properties getProperties(Context context) {
         if (properties == null) {
@@ -75,20 +78,34 @@ public class Util {
     public static Bitmap resizeBitmap(Bitmap bitmap, int scale) {
         double ratio;
         if (bitmap.getWidth() >= bitmap.getHeight()) {
-            ratio = (double) Util.MAX_SCALE / bitmap.getWidth();
+            ratio = (double) scale / bitmap.getWidth();
 
             double newHeight = bitmap.getHeight() * ratio;
 
-            bitmap = Bitmap.createScaledBitmap(bitmap, Util.MAX_SCALE, (int) newHeight, false);
+            bitmap = Bitmap.createScaledBitmap(bitmap, scale, (int) newHeight, false);
         } else {
-            ratio = (double) Util.MAX_SCALE / bitmap.getHeight();
+            ratio = (double) Util.MAX_SCALE_PERCENT_BAR_AVATAR / bitmap.getHeight();
 
             double newWidth = bitmap.getWidth() * ratio;
 
-            bitmap = Bitmap.createScaledBitmap(bitmap, (int) newWidth, Util.MAX_SCALE, false);
+            bitmap = Bitmap.createScaledBitmap(bitmap, (int) newWidth, scale, false);
         }
 
         return bitmap;
+    }
+
+    public static int getBarAvatarImageSize(Activity activity) {
+        Point size = ScreenUtil.getSize(activity);
+        int width = size.x;
+
+        return (int) (width / 100.0 * Util.MAX_SCALE_PERCENT_BAR_AVATAR);
+    }
+
+    public static int getAccountAvatarImageSize(Activity activity) {
+        Point size = ScreenUtil.getSize(activity);
+        int width = size.x;
+
+        return (int) (width / 100.0 * Util.MAX_SCALE_PERCENT_ACCOUNT);
     }
 
     public static String getDefaultUser(Context c) {

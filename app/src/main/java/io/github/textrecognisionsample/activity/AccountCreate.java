@@ -111,7 +111,7 @@ public class AccountCreate extends AppCompatActivity {
                     Uri currentUri = data.getData();
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currentUri);
 
-                    bitmap = Util.resizeBitmap(bitmap, Util.MAX_SCALE);
+                    bitmap = Util.resizeBitmap(bitmap, Util.getAccountAvatarImageSize(this));
 
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);

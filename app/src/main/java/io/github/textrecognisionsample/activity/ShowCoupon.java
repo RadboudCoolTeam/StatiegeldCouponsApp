@@ -26,7 +26,7 @@ import io.github.textrecognisionsample.util.Util;
 public class ShowCoupon extends AppCompatActivity {
 
     private boolean edited = false;
-    Coupon coupon;
+    private Coupon coupon;
 
     private final int BARCODE_WIDTH = 400;
     private final int BARCODE_HEIGHT = 150;
@@ -57,27 +57,21 @@ public class ShowCoupon extends AppCompatActivity {
             finish();
         });
 
-        showBarcodeEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ShowCoupon.this, EditCoupon.class);
+        showBarcodeEdit.setOnClickListener(view -> {
+            Intent intent = new Intent(ShowCoupon.this, EditCoupon.class);
 
-                intent.putExtra("coupon", gson.toJson(coupon));
-                intent.putExtra("isEdit", true);
+            intent.putExtra("coupon", gson.toJson(coupon));
+            intent.putExtra("isEdit", true);
 
-                startActivityForResult(intent, Result.EDIT_COUPON);
-            }
+            startActivityForResult(intent, Result.EDIT_COUPON);
         });
 
-        showBarcodeDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("coupon", gson.toJson(coupon));
-                intent.putExtra("result", Result.COUPON_DELETED);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
+        showBarcodeDelete.setOnClickListener(view -> {
+            Intent intent = new Intent();
+            intent.putExtra("coupon", gson.toJson(coupon));
+            intent.putExtra("result", Result.COUPON_DELETED);
+            setResult(RESULT_OK, intent);
+            finish();
         });
     }
 

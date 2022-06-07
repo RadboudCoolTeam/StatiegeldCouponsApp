@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.PopupMenu;
@@ -25,11 +26,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
@@ -145,7 +149,14 @@ public class Home extends AppCompatActivity implements LocationListener {
         setupCouponsList();
     }
 
-    public String[] getLoc(LocationManager lm, String provider){
+    private void setupTopBar() {
+        CardView view = findViewById(R.id.top_bar_image);
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        int size = Util.getBarAvatarImageSize(Home.this);
+        params.height = size;
+    }
+
+    private String[] getLoc(LocationManager lm, String provider){
         String longitude = properties.getProperty("default_longitude");
         String latitude = properties.getProperty("default_latitude");
         if (ActivityCompat.checkSelfPermission(this,
@@ -158,8 +169,7 @@ public class Home extends AppCompatActivity implements LocationListener {
                 longitude = String.valueOf(location.getLongitude());
                 latitude = String.valueOf(location.getLatitude());
             } else {
-                lm.requestLocationUpdates(provider, 1000, 20,
-                        (LocationListener) this);
+                lm.requestLocationUpdates(provider, 1000, 20, this);
             }
 
         } else {
@@ -211,13 +221,19 @@ public class Home extends AppCompatActivity implements LocationListener {
     @SuppressLint({"UseCompatLoadingForDrawables", "NonConstantResourceId", "RestrictedApi"})
     private void setupAvatar() {
         avatarButton = findViewById(R.id.avatarButton);
-
         avatarButton.setImageBitmap(
                 Util.resizeBitmap(
                         ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
                                 .getBitmap(),
-                        Util.MAX_SCALE)
+                        Util.getBarAvatarImageSize(this))
         );
+        int size = Util.getBarAvatarImageSize(Home.this);
+
+        ViewGroup.LayoutParams params = avatarButton.getLayoutParams();
+        params.width = size;
+        params.height = size;
+        avatarButton.setLayoutParams(params);
+        avatarButton.invalidate();
 
         avatarButton.setOnClickListener(view -> {
             PopupMenu popupMenu = new PopupMenu(Home.this, avatarButton);
@@ -289,8 +305,15 @@ public class Home extends AppCompatActivity implements LocationListener {
                                                 Util.getWebUser().data,
                                                 0,
                                                 Util.getWebUser().data.length),
-                                        Util.MAX_SCALE)
+                                        Util.getBarAvatarImageSize(this))
                         );
+                        int size = Util.getBarAvatarImageSize(Home.this);
+
+                        ViewGroup.LayoutParams params = avatarButton.getLayoutParams();
+                        params.width = size;
+                        params.height = size;
+                        avatarButton.setLayoutParams(params);
+                        avatarButton.invalidate();
                         avatarButton.invalidate();
                     }
                 });
@@ -333,9 +356,16 @@ public class Home extends AppCompatActivity implements LocationListener {
                                                     Util.getWebUser().data,
                                                     0,
                                                     Util.getWebUser().data.length),
-                                            Util.MAX_SCALE
+                                            Util.getBarAvatarImageSize(this)
                                     )
                             );
+                            int size = Util.getBarAvatarImageSize(Home.this);
+
+                            ViewGroup.LayoutParams params = avatarButton.getLayoutParams();
+                            params.width = size;
+                            params.height = size;
+                            avatarButton.setLayoutParams(params);
+                            avatarButton.invalidate();
                             avatarButton.invalidate();
                         }
                     });
@@ -542,17 +572,24 @@ public class Home extends AppCompatActivity implements LocationListener {
                                                 Util.getWebUser().data,
                                                 0,
                                                 Util.getWebUser().data.length),
-                                        Util.MAX_SCALE)
+                                        Util.getBarAvatarImageSize(Home.this))
                         );
-                        avatarButton.invalidate();
                     } else {
                         avatarButton.setImageBitmap(
                                 Util.resizeBitmap(
                                         ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
                                                 .getBitmap(),
-                                        Util.MAX_SCALE)
+                                        Util.getBarAvatarImageSize(Home.this))
                         );
                     }
+
+                    int size = Util.getBarAvatarImageSize(Home.this);
+
+                    ViewGroup.LayoutParams params = avatarButton.getLayoutParams();
+                    params.width = size;
+                    params.height = size;
+                    avatarButton.setLayoutParams(params);
+                    avatarButton.invalidate();
                 });
             } else {
                 runOnUiThread(() -> {
@@ -560,10 +597,18 @@ public class Home extends AppCompatActivity implements LocationListener {
                             Util.resizeBitmap(
                                     ((BitmapDrawable) getResources().getDrawable(R.drawable.avatar))
                                             .getBitmap(),
-                                    Util.MAX_SCALE)
+                                    Util.getBarAvatarImageSize(Home.this))
                     );
                     Toast.makeText(getApplicationContext(), "You are not logged in!", Toast.LENGTH_SHORT).show();
                     swipeRefreshContainer.setRefreshing(false);
+                    int size = Util.getBarAvatarImageSize(Home.this);
+
+                    ViewGroup.LayoutParams params = avatarButton.getLayoutParams();
+                    params.width = size;
+                    params.height = size;
+                    avatarButton.setLayoutParams(params);
+                    avatarButton.invalidate();
+                    avatarButton.invalidate();
                 });
             }
         }));
