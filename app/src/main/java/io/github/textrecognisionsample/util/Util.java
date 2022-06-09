@@ -50,7 +50,7 @@ public class Util {
     private static boolean isLoggedIn = false;
 
     public static final int MAX_SCALE_PERCENT_BAR_AVATAR = 25;
-    public static final int MAX_SCALE_PERCENT_BAR_WIDTH = 90;
+    public static final int MAX_SCALE_PERCENT_BAR_HEIGHT = 40;
     public static final int MAX_SCALE_PERCENT_ACCOUNT = 40;
     public static final int MAX_SCALE_PERCENT_BARCODE = 80;
 
@@ -79,21 +79,16 @@ public class Util {
     }
 
     public static Bitmap resizeBitmap(Bitmap bitmap, int scale) {
-        double ratio;
+        int newWidth;
+        int newHeight;
         if (bitmap.getWidth() >= bitmap.getHeight()) {
-            ratio = (double) scale / bitmap.getWidth();
-
-            double newHeight = bitmap.getHeight() * ratio;
-
-            bitmap = Bitmap.createScaledBitmap(bitmap, scale, (int) newHeight, false);
+            newWidth = scale;
+            newHeight = (bitmap.getHeight() * scale) / bitmap.getWidth();
         } else {
-            ratio = (double) Util.MAX_SCALE_PERCENT_BAR_AVATAR / bitmap.getHeight();
-
-            double newWidth = bitmap.getWidth() * ratio;
-
-            bitmap = Bitmap.createScaledBitmap(bitmap, (int) newWidth, scale, false);
+            newWidth = (bitmap.getWidth() * scale) / bitmap.getHeight();
+            newHeight = scale;
         }
-
+        bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
         return bitmap;
     }
 

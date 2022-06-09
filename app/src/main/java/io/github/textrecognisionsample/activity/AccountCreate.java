@@ -117,9 +117,16 @@ public class AccountCreate extends AppCompatActivity {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                     imageData = outputStream.toByteArray();
 
-                    ImageButton avatar = findViewById(R.id.createAccountAvatar);
+                    Bitmap finalBitmap = bitmap;
+                    runOnUiThread(
+                            () -> {
+                                ImageButton avatar = findViewById(R.id.createAccountAvatar);
 
-                    avatar.setImageBitmap(bitmap);
+                                avatar.setImageBitmap(finalBitmap);
+
+                                avatar.invalidate();
+                            }
+                    );
 
                 } catch (IOException e) {
                     // ignored

@@ -11,14 +11,14 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import io.github.textrecognisionsample.util.Util;
 
 public class Account extends AppCompatActivity {
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,10 +78,10 @@ public class Account extends AppCompatActivity {
         });
 
         AsyncTask.execute(() -> {
-            ArrayList<BarEntry> barEntries = new ArrayList<>();
+            ArrayList<PieEntry> pieEntries = new ArrayList<>();
             StatisticsDao dao = StatisticsDatabase.getInstance(getApplicationContext()).statisticsDao();
             List<StatisticsData> data = dao.getAll();
-            ArrayList<String> label = new ArrayList<>();
+            ArrayList<SupermarketChain> label = new ArrayList<>();
 
             CouponDao couponDao = CouponDatabase.getInstance(getApplicationContext()).couponDao();
             List<Coupon> coupons = couponDao.getAll();
@@ -95,7 +95,7 @@ public class Account extends AppCompatActivity {
                     try {
                         values.put(coupon.getSupermarketChain(),
                                 (float) (values.get(coupon.getSupermarketChain()) +
-                                                        Double.parseDouble(coupon.getMoney())));
+                                        Double.parseDouble(coupon.getMoney())));
                     } catch (NumberFormatException e) {
                         // ignored
                     }
@@ -105,49 +105,50 @@ public class Account extends AppCompatActivity {
                 }
             }
 
-            int i = 0;
+            int size = 0;
             for (StatisticsData statisticsData : data) {
-                barEntries.add(new BarEntry((float) i, statisticsData.value.floatValue() +
-                        values.get(statisticsData.supermarketChain)));
-                label.add(statisticsData.supermarketChain.getFriendlyName());
-                i++;
+                float value = statisticsData.value.floatValue() +
+                        values.get(statisticsData.supermarketChain);
+                if (value > 0.0f) {
+                    pieEntries.add(new PieEntry(value,
+                            statisticsData.supermarketChain.getFriendlyName()));
+                    label.add(statisticsData.supermarketChain);
+                    size++;
+                }
             }
 
             for (Map.Entry<SupermarketChain, Float> entry : values.entrySet()) {
                 if (data.stream().noneMatch(e -> e.supermarketChain == entry.getKey())) {
-                    barEntries.add(new BarEntry((float) i, entry.getValue()));
-                    label.add(entry.getKey().getFriendlyName());
-                    i++;
+                    if (entry.getValue() > 0.0f) {
+                        pieEntries.add(new PieEntry(entry.getValue(), entry.getKey().getFriendlyName()));
+                        label.add(entry.getKey());
+                        size++;
+                    }
                 }
             }
 
+            PieDataSet pieDataSet = new PieDataSet(pieEntries, "Values");
+            int[] colors = new int[size];
 
-            BarDataSet dataSet = new BarDataSet(barEntries, "Values");
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(dataSet);
+            for (int i = 0; i < size; i++) {
+                colors[i] = ContextCompat.getColor(this, label.get(i).getColor());
+            }
 
-            BarData barData = new BarData(dataSets);
-            barData.setValueTextSize(10f);
-            barData.setBarWidth(0.9f);
+            pieDataSet.setColors(colors);
+            PieData pieData = new PieData(pieDataSet);
+            pieData.setValueTextSize(10f);
 
             runOnUiThread(() -> {
-                BarChart barChart = findViewById(R.id.chart);
-                barChart.setData(barData);
+                PieChart pieChart = findViewById(R.id.chart);
+                pieChart.setData(pieData);
+                pieChart.invalidate();
+                pieChart.setDrawEntryLabels(true);
+                pieChart.setContentDescription("");
+                pieChart.getDescription().setEnabled(false);
 
-                XAxis xAxis = barChart.getXAxis();
-                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
-
-                ValueFormatter valueFormatter = new ValueFormatter() {
-                    @Override
-                    public String getFormattedValue(float value) {
-                        return label.get((int) value);
-                    }
-                };
-
-                xAxis.setGranularity(1f);
-                xAxis.setValueFormatter(valueFormatter);
-
-                barChart.invalidate();
+                Legend legend = pieChart.getLegend();
+                legend.setForm(Legend.LegendForm.CIRCLE);
+                legend.setWordWrapEnabled(true);
             });
         });
     }

@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -124,8 +125,6 @@ public class Home extends AppCompatActivity implements LocationListener {
 
         loadAnimation();
 
-        setupTopBar();
-
         // Weather feature:
 
         setupWeather();
@@ -150,18 +149,6 @@ public class Home extends AppCompatActivity implements LocationListener {
         setupCouponAddButtons();
 
         setupCouponsList();
-    }
-
-    private void setupTopBar() {
-        CardView view = findViewById(R.id.top_bar_image);
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        params.width = Util.getResized(this, Util.MAX_SCALE_PERCENT_BAR_WIDTH);
-
-        ViewGroup.MarginLayoutParams layoutParams =
-                (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-        layoutParams.leftMargin = (Util.getResized(this, 100) - params.width)/2;
-
-        view.requestLayout();
     }
 
     private String[] getLoc(LocationManager lm, String provider){

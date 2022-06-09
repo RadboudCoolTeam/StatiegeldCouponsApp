@@ -11,9 +11,12 @@
         <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_account_settings.xml" value="0.22604166666666667" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_camera_x.xml" value="0.22604166666666667" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_edit_coupon.xml" value="0.22604166666666667" />
-        <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_home.xml" value="0.4" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_home.xml" value="0.32222222222222224" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_main.xml" value="0.21197916666666666" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_show_coupon.xml" value="0.25052083333333336" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/activity_verify_coupon.xml" value="0.21197916666666666" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/coupon_card.xml" value="0.1640625" />
+        <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/layout/list_item.xml" value="0.21197916666666666" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/StatiegeldCouponsApp2/app/src/main/res/menu/popup_menu.xml" value="0.22604166666666667" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable-v24/arrow_back-48px.xml" value="0.211" />
         <entry key="..\:/Users/mikha/AndroidStudioProjects/TextRecognisionSample/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />

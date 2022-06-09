@@ -14,6 +14,7 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         android:elevation="4dp"
+        app:title="Scan coupon"
         app:navigationIcon="@drawable/ic_baseline_navigate_before_24"
         app:navigationIconTint="?attr/colorOnSurface"
         app:layout_constraintBottom_toBottomOf="parent"
