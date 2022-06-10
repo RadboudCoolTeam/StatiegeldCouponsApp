@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,9 +34,11 @@ import io.github.textrecognisionsample.R;
 import io.github.textrecognisionsample.model.coupon.Coupon;
 import io.github.textrecognisionsample.model.coupon.CouponDao;
 import io.github.textrecognisionsample.model.coupon.CouponDatabase;
+import io.github.textrecognisionsample.model.statistics.StatisticsData;
 import io.github.textrecognisionsample.model.user.UserData;
 import io.github.textrecognisionsample.model.user.UserDatabase;
 import io.github.textrecognisionsample.model.web.WebCoupon;
+import io.github.textrecognisionsample.model.web.WebStatisticsData;
 import io.github.textrecognisionsample.model.web.WebUser;
 import io.github.textrecognisionsample.model.web.WebUserJsonSerializer;
 
@@ -159,6 +162,75 @@ public class Util {
             });
 
             return userFromApi;
+        }
+
+        return null;
+    }
+
+    public static List<WebStatisticsData> getStatistics(WebUser user, Context context) throws IOException {
+        String address = Util.getAddress(context);
+        URL url = new URL(address + "users/" + user.id + "/statistics");
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestProperty("Content-Type", "application/json");
+        urlConnection.setRequestProperty("Accept", "application/json");
+        urlConnection.setRequestMethod("POST");
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer());
+        Gson gson = gsonBuilder.create();
+
+        OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+        writer.write(gson.toJson(Util.getWebUser(), WebUser.class));
+        writer.flush();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        int httpResult = urlConnection.getResponseCode();
+
+        if (httpResult == HttpURLConnection.HTTP_ACCEPTED) {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+            br.close();
+
+            return Arrays.asList(gson.fromJson(stringBuilder.toString(), WebStatisticsData[].class));
+        }
+
+        return new ArrayList<>();
+    }
+
+    public static List<WebStatisticsData> updateStatistics(List<StatisticsData> statisticsData, Context context) throws IOException {
+        String address = Util.getAddress(context);
+        URL url = new URL(address + "users/" + getWebUser().id + "/updateStatistics");
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestProperty("Content-Type", "application/json");
+        urlConnection.setRequestProperty("Accept", "application/json");
+        urlConnection.setRequestMethod("POST");
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(WebUser.class, new WebUserJsonSerializer());
+        Gson gson = gsonBuilder.create();
+
+        OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+
+        writer.write(gson.toJson(Pair.of(Util.getWebUser(), statisticsData), Pair.class));
+        writer.flush();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        int httpResult = urlConnection.getResponseCode();
+
+        if (httpResult == HttpURLConnection.HTTP_ACCEPTED) {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+            br.close();
+
+            return Arrays.asList(gson.fromJson(stringBuilder.toString(), WebStatisticsData[].class));
         }
 
         return null;

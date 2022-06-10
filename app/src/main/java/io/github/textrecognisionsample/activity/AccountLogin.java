@@ -28,6 +28,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import io.github.textrecognisionsample.R;
+import io.github.textrecognisionsample.model.coupon.CouponDao;
+import io.github.textrecognisionsample.model.coupon.CouponDatabase;
 import io.github.textrecognisionsample.model.user.UserDao;
 import io.github.textrecognisionsample.model.user.UserData;
 import io.github.textrecognisionsample.model.user.UserDatabase;
@@ -37,6 +39,7 @@ import io.github.textrecognisionsample.util.ByteArrayToBase64TypeAdapter;
 import io.github.textrecognisionsample.util.Util;
 
 public class AccountLogin extends AppCompatActivity {
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +89,11 @@ public class AccountLogin extends AppCompatActivity {
                         userDao.nukeTable();
                     }
 
+                    CouponDao couponDao = CouponDatabase.getInstance(getApplicationContext()).couponDao();
+                    if (couponDao.getAll().size() > 0) {
+                        couponDao.nukeTable();
+                    }
+
                     userDao.insert(new UserData(gson.toJson(userFromApi, WebUser.class)));
 
                     Intent intent = new Intent(AccountLogin.this, Account.class);
@@ -103,13 +111,10 @@ public class AccountLogin extends AppCompatActivity {
 
         Button newAcc = findViewById(R.id.accountLoginCreateNew);
 
-        newAcc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AccountLogin.this, AccountCreate.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-            }
+        newAcc.setOnClickListener(view -> {
+            Intent intent = new Intent(AccountLogin.this, AccountCreate.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         });
     }
 }

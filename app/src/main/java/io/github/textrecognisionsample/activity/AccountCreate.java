@@ -30,6 +30,7 @@ public class AccountCreate extends AppCompatActivity {
 
     private byte[] imageData;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,56 +49,47 @@ public class AccountCreate extends AppCompatActivity {
             startActivity(intent);
         });
 
-        avatar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"),
-                        Result.AVATAR_IMAGE_PICK);
-            }
+        avatar.setOnClickListener(view -> {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"),
+                    Result.AVATAR_IMAGE_PICK);
         });
 
         Button create = findViewById(R.id.accountCreateButton);
-        create.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View view) {
-                AsyncTask.execute(() -> {
-                    try {
-                        WebUser user = new WebUser(email.getText().toString(), password.getText().toString(), imageData);
-                        user.name = name.getText().toString();
+        create.setOnClickListener(view -> AsyncTask.execute(() -> {
+            try {
+                WebUser user = new WebUser(email.getText().toString(), password.getText().toString(), imageData);
+                user.name = name.getText().toString();
 
-                        String id = Util.createAccount(user, view.getContext());
+                String id = Util.createAccount(user, view.getContext());
 
-                        if (id != null) {
+                if (id != null) {
 
-                            user.id = Long.parseLong(id);
+                    user.id = Long.parseLong(id);
 
-                            Util.getWebUser().updateUser(user);
+                    Util.getWebUser().updateUser(user);
 
-                            runOnUiThread(() -> Toast.makeText(view.getContext(), "You are logged in: " + user.id,
-                                    Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(view.getContext(), "You are logged in: " + user.id,
+                            Toast.LENGTH_SHORT).show());
 
-                            Util.setIsLoggedIn(true);
+                    Util.setIsLoggedIn(true);
 
-                            Util.syncDatabases(getApplicationContext());
+                    Util.syncDatabases(getApplicationContext());
 
-                            Intent intent = new Intent(AccountCreate.this, Account.class);
-                            startActivity(intent);
-                        } else {
+                    Intent intent = new Intent(AccountCreate.this, Account.class);
+                    startActivity(intent);
+                } else {
 
-                            runOnUiThread(() -> Toast.makeText(view.getContext(), "Unable to create an account",
-                                    Toast.LENGTH_SHORT).show());
-                        }
+                    runOnUiThread(() -> Toast.makeText(view.getContext(), "Unable to create an account",
+                            Toast.LENGTH_SHORT).show());
+                }
 
-                    } catch (IOException e) {
-                        // ignored
-                    }
-                });
+            } catch (IOException e) {
+                // ignored
             }
-        });
+        }));
     }
 
     @Override

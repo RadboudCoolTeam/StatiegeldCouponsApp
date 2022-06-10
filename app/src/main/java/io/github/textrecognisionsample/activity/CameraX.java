@@ -123,8 +123,7 @@ public class CameraX extends AppCompatActivity implements View.OnClickListener {
         imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build();
-        cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageCapture);
-
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
     }
 
     @Override
@@ -151,8 +150,6 @@ public class CameraX extends AppCompatActivity implements View.OnClickListener {
                         newAnalyzer.analyze(image);
                     }
                 });
-
-
     }
 
     private boolean allPermissionsGranted() {
