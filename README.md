@@ -49,7 +49,7 @@ When a user scrolls down the background picture reclines and the filter menu sta
 ## How does the project work
 
 As was mentioned in the introduction, our information system consists of 2 parts: 
-a mobile app and a web server. 
+a mobile app and a [web](https://github.com/RadboudCoolTeam/StatiegeldCouponsAPI) server. 
 
 The mobile app allows users to gather coupon information, and maintain it in the app. Users can add, remove, and filter coupons. Also, our mobile app provides data persistence functionality - after restarting the app the coupons added in the app are remains accessible. Another important role of the application is the synchronization of data with the server: the user of the application has a chance to create an account in the app and store the coupons on the server.
 
